@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editor folders
+.vscode/
+.idea/
+
+# Temporary files
+*.log
