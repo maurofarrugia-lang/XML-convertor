@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>XML to Word Converter</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.1/docx.min.js"></script>
+</head>
+<body>
+  <h2>Online XML → DOCX Converter</h2>
+  <input type="file" id="xmlFile" accept=".xml">
+  <button onclick="convert()">Convert to DOCX</button>
+
+  <script>
+    async function convert() {
+      const fileInput = document.getElementById("xmlFile");
+      if (!fileInput.files.length) {
+        alert("Please upload an XML file first.");
+        return;
+      }
+
+      const xmlText = await fileInput.files[0].text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(xmlText, "text/xml");
+
+      const { Document, Packer, Paragraph } = docx;
+      const doc = new Document();
+
+      function processNode(node, level = 0) {
+        const tag = node.nodeName;
+        const text = node.textContent.trim();
+        doc.addSection({
+          children: [
+            new Paragraph(`${"  ".repeat(level)}${tag}: ${text}`)
+          ]
+        });
+
+        [...node.children].forEach(child => processNode(child, level + 1));
+      }
+
+      processNode(xmlDoc.documentElement);
+
+      const blob = await Packer.toBlob(doc);
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "converted.docx";
+      link.click();
+    }
+  </script>
+</body>
+</html>
