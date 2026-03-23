@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>XML to Word Converter</title>
 
-  <!-- Load DOCX library (fixed link) -->
+  <!-- Load DOCX.js correctly -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.1/docx.min.js"></script>
 
   <style>
@@ -94,8 +94,7 @@
       status.style.display = "block";
       status.style.color = "#d97706"; // orange
 
-      // Show waiting animation
-      await new Promise(resolve => setTimeout(resolve, 600));
+      await new Promise(resolve => setTimeout(resolve, 600)); // waiting animation
 
       const xmlText = await fileInput.files[0].text();
       const parser = new DOMParser();
@@ -110,9 +109,10 @@
         }]
       });
 
+      // Convert XML to DOCX paragraphs
       function processNode(node, level = 0) {
         const tag = node.nodeName;
-        const text = node.textContent.trim();
+        const text = (node.textContent || "").trim();
 
         doc.sections[0].children.push(
           new Paragraph(`${"   ".repeat(level)}${tag}: ${text}`)
@@ -123,6 +123,7 @@
 
       processNode(xmlDoc.documentElement);
 
+      // Create and download DOCX
       const blob = await Packer.toBlob(doc);
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
