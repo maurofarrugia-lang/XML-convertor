@@ -3,14 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XML to DOCX Report Converter</title>
-
+  <title>XML to DOCX Report Converter — Dublinet Code Mapping</title>
   <style>
     :root {
       --bg: #f4f7fb;
       --bg-accent: #eaf2ff;
-      --card: rgba(255, 255, 255, 0.84);
-      --card-solid: #ffffff;
+      --card: rgba(255, 255, 255, 0.86);
       --text: #0f172a;
       --muted: #64748b;
       --line: #e2e8f0;
@@ -23,11 +21,7 @@
       --shadow: 0 14px 40px rgba(15, 23, 42, 0.08);
       --radius: 20px;
     }
-
-    * {
-      box-sizing: border-box;
-    }
-
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
@@ -39,423 +33,128 @@
       min-height: 100vh;
       padding: 32px 16px 48px;
     }
-
-    .app {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .hero {
-      text-align: center;
-      margin-bottom: 26px;
-    }
-
+    .app { max-width: 1120px; margin: 0 auto; }
+    .hero { text-align: center; margin-bottom: 26px; }
     .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 14px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.75);
-      border: 1px solid rgba(255,255,255,0.95);
-      box-shadow: var(--shadow);
-      color: var(--primary-dark);
-      font-size: 13px;
-      font-weight: 700;
-      margin-bottom: 14px;
-      backdrop-filter: blur(12px);
+      display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px;
+      border-radius: 999px; background: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.95);
+      box-shadow: var(--shadow); color: var(--primary-dark); font-size: 13px; font-weight: 700;
+      margin-bottom: 14px; backdrop-filter: blur(12px);
     }
-
-    h1 {
-      margin: 0;
-      font-size: clamp(30px, 4vw, 46px);
-      line-height: 1.05;
-      letter-spacing: -0.03em;
-    }
-
-    .subtitle {
-      max-width: 760px;
-      margin: 12px auto 0;
-      color: var(--muted);
-      font-size: 15px;
-      line-height: 1.75;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 1.08fr 0.92fr;
-      gap: 18px;
-    }
-
-    @media (max-width: 930px) {
-      .layout {
-        grid-template-columns: 1fr;
-      }
-    }
-
+    h1 { margin: 0; font-size: clamp(30px, 4vw, 46px); line-height: 1.05; letter-spacing: -0.03em; }
+    .subtitle { max-width: 780px; margin: 12px auto 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+    .layout { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 18px; }
+    @media (max-width: 930px) { .layout { grid-template-columns: 1fr; } }
     .card {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.95);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(14px);
-      padding: 22px;
+      background: var(--card); border: 1px solid rgba(255,255,255,0.95); border-radius: var(--radius);
+      box-shadow: var(--shadow); backdrop-filter: blur(14px); padding: 22px;
     }
-
-    .card h2 {
-      margin: 0 0 6px;
-      font-size: 18px;
-      letter-spacing: -0.02em;
-    }
-
-    .lead {
-      margin: 0 0 18px;
-      font-size: 14px;
-      color: var(--muted);
-      line-height: 1.65;
-    }
-
+    .card h2 { margin: 0 0 6px; font-size: 18px; letter-spacing: -0.02em; }
+    .lead { margin: 0 0 18px; font-size: 14px; color: var(--muted); line-height: 1.65; }
     .dropzone {
-      display: block;
-      border: 1.5px dashed #93c5fd;
-      background: linear-gradient(180deg, #ffffff, #f8fbff);
-      border-radius: 18px;
-      padding: 30px 18px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.18s ease;
+      display: block; border: 1.5px dashed #93c5fd; background: linear-gradient(180deg, #ffffff, #f8fbff);
+      border-radius: 18px; padding: 30px 18px; text-align: center; cursor: pointer; transition: 0.18s ease;
       user-select: none;
     }
-
-    .dropzone:hover,
-    .dropzone.drag {
-      border-color: var(--primary);
-      background: var(--primary-soft);
-      transform: translateY(-1px);
-    }
-
+    .dropzone:hover, .dropzone.drag { border-color: var(--primary); background: var(--primary-soft); transform: translateY(-1px); }
     .dropzone .icon {
-      width: 60px;
-      height: 60px;
-      margin: 0 auto 14px;
-      border-radius: 18px;
-      display: grid;
-      place-items: center;
-      background: #dbeafe;
-      color: var(--primary-dark);
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
+      width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center;
+      background: #dbeafe; color: var(--primary-dark); font-size: 24px; font-weight: 800; letter-spacing: 0.04em;
     }
-
-    .dropzone .title {
-      font-size: 16px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-
-    .dropzone .hint {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    input[type="file"] {
-      display: none;
-    }
-
+    .dropzone .title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .dropzone .hint { color: var(--muted); font-size: 13px; }
+    input[type="file"] { display: none; }
     .meta {
-      margin-top: 14px;
-      background: var(--card-solid);
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px 14px;
-      font-size: 14px;
-      color: var(--muted);
+      margin-top: 14px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 12px 14px; font-size: 14px; color: var(--muted);
     }
-
-    .meta strong {
-      color: var(--text);
-    }
-
-    .grid {
-      display: grid;
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .grid.two {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    @media (max-width: 720px) {
-      .grid.two {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field label {
-      font-size: 13px;
-      font-weight: 700;
-      color: #334155;
-    }
-
+    .meta strong { color: var(--text); }
+    .grid { display: grid; gap: 14px; margin-top: 16px; }
+    .grid.two { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 720px) { .grid.two { grid-template-columns: 1fr; } }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-size: 13px; font-weight: 700; color: #334155; }
     .field input[type="text"] {
-      width: 100%;
-      border: 1px solid var(--line);
-      background: white;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 14px;
-      outline: none;
-      transition: 0.15s ease;
+      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px;
+      padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease;
     }
-
-    .field input[type="text"]:focus {
-      border-color: #93c5fd;
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08);
-    }
-
-    .checks {
-      display: grid;
-      gap: 10px;
-      margin-top: 8px;
-    }
-
+    .field input[type="text"]:focus { border-color: #93c5fd; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
+    .checks { display: grid; gap: 10px; margin-top: 8px; }
     .check {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 11px 12px;
-      font-size: 14px;
+      display: flex; align-items: center; gap: 10px; background: white; border: 1px solid var(--line);
+      border-radius: 12px; padding: 11px 12px; font-size: 14px;
     }
-
-    .check input {
-      transform: scale(1.05);
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 18px;
-    }
-
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
     button {
-      border: 0;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
-      font-weight: 800;
-      cursor: pointer;
-      transition: 0.18s ease;
+      border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 800;
+      cursor: pointer; transition: 0.18s ease;
     }
-
-    button.primary {
-      background: var(--primary);
-      color: white;
-    }
-
-    button.primary:hover {
-      background: var(--primary-dark);
-    }
-
-    button.secondary {
-      background: white;
-      border: 1px solid var(--line);
-      color: var(--text);
-    }
-
-    button.secondary:hover {
-      background: #f8fafc;
-    }
-
-    button:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
+    button.primary { background: var(--primary); color: white; }
+    button.primary:hover { background: var(--primary-dark); }
+    button.secondary { background: white; border: 1px solid var(--line); color: var(--text); }
+    button.secondary:hover { background: #f8fafc; }
+    button:disabled { opacity: 0.55; cursor: not-allowed; }
     .status {
-      display: none;
-      margin-top: 16px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      font-size: 14px;
-      line-height: 1.55;
-      border: 1px solid transparent;
-      white-space: pre-wrap;
+      display: none; margin-top: 16px; padding: 12px 14px; border-radius: 14px; font-size: 14px;
+      line-height: 1.55; border: 1px solid transparent; white-space: pre-wrap;
     }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.info {
-      background: #eff6ff;
-      color: #1d4ed8;
-      border-color: #bfdbfe;
-    }
-
-    .status.success {
-      background: #f0fdf4;
-      color: var(--success);
-      border-color: #bbf7d0;
-    }
-
-    .status.error {
-      background: #fef2f2;
-      color: var(--error);
-      border-color: #fecaca;
-    }
-
-    .status.warning {
-      background: #fffbeb;
-      color: var(--warning);
-      border-color: #fde68a;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-      margin-top: 6px;
-    }
-
-    .stat {
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 14px;
-    }
-
-    .stat .label {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 8px;
-    }
-
-    .stat .value {
-      font-size: 22px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-      word-break: break-word;
-    }
-
-    .preview-box {
-      margin-top: 16px;
-      background: #0f172a;
-      color: #e2e8f0;
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid #1e293b;
-    }
-
-    .preview-head {
-      padding: 12px 14px;
-      font-size: 13px;
-      font-weight: 800;
-      color: #cbd5e1;
-      background: #111827;
-      border-bottom: 1px solid #1e293b;
-    }
-
+    .status.show { display: block; }
+    .status.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+    .status.success { background: #f0fdf4; color: var(--success); border-color: #bbf7d0; }
+    .status.error { background: #fef2f2; color: var(--error); border-color: #fecaca; }
+    .status.warning { background: #fffbeb; color: var(--warning); border-color: #fde68a; }
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 6px; }
+    .stat { background: white; border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+    .stat .label { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+    .stat .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; word-break: break-word; }
+    .preview-box { margin-top: 16px; background: #0f172a; color: #e2e8f0; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b; }
+    .preview-head { padding: 12px 14px; font-size: 13px; font-weight: 800; color: #cbd5e1; background: #111827; border-bottom: 1px solid #1e293b; }
     pre {
-      margin: 0;
-      padding: 16px;
-      font-size: 12.5px;
-      line-height: 1.65;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-height: 560px;
-      overflow: auto;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      margin: 0; padding: 16px; font-size: 12.5px; line-height: 1.68; white-space: pre-wrap; word-break: break-word;
+      max-height: 560px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     }
-
-    .pills {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .pill {
-      background: white;
-      border: 1px solid var(--line);
-      color: #334155;
-      border-radius: 999px;
-      padding: 8px 12px;
-      font-size: 12px;
-      font-weight: 700;
-    }
-
-    .note {
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 13px;
-      line-height: 1.65;
-    }
+    .note { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.65; }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="hero">
-      <div class="badge">Version 2 · Fixed Loader · Report-Style Export</div>
+      <div class="badge">Dublinet-aware · Code Mapping Edition</div>
       <h1>XML to DOCX Report Converter</h1>
       <p class="subtitle">
-        Upload an XML file, validate it, preview the structure, and export a polished Word report with
-        summary metadata, structured headings, attributes, and an optional raw XML appendix.
+        This version detects <strong>TakeChargeRequestForm</strong> exports and maps safe, common coded values into more human-readable labels where possible.
       </p>
     </div>
 
     <div class="layout">
       <div class="card">
         <h2>Upload & Settings</h2>
-        <p class="lead">
-          This version fixes the broken DOCX library loading issue and improves the report formatting.
-        </p>
+        <p class="lead">Upload your XML file and export a cleaner, code-aware Dublinet report.</p>
 
         <label class="dropzone" id="dropzone" for="xmlFile">
           <div class="icon">XML</div>
           <div class="title">Click to upload or drag & drop your XML file</div>
-          <div class="hint">Only .xml files are supported</div>
+          <div class="hint">Best results for Dublinet TakeChargeRequestForm exports</div>
         </label>
 
         <input type="file" id="xmlFile" accept=".xml,text/xml,application/xml" />
-
         <div class="meta" id="fileMeta">No file selected</div>
 
         <div class="grid two">
           <div class="field">
             <label for="reportTitle">Report title</label>
-            <input type="text" id="reportTitle" placeholder="XML Structure Report" />
+            <input type="text" id="reportTitle" placeholder="Dublinet Case Report" />
           </div>
           <div class="field">
             <label for="outputName">Output DOCX filename</label>
-            <input type="text" id="outputName" placeholder="xml-report.docx" />
+            <input type="text" id="outputName" placeholder="dublinet-report.docx" />
           </div>
         </div>
 
         <div class="checks">
-          <label class="check">
-            <input type="checkbox" id="includeAttributes" checked />
-            Include XML attributes
-          </label>
-          <label class="check">
-            <input type="checkbox" id="includeStats" checked />
-            Include executive summary table
-          </label>
-          <label class="check">
-            <input type="checkbox" id="includeRawXml" />
-            Include raw XML appendix
-          </label>
+          <label class="check"><input type="checkbox" id="includeAttributes" /> Include XML attributes in appendix</label>
+          <label class="check"><input type="checkbox" id="includeStats" checked /> Include executive summary table</label>
+          <label class="check"><input type="checkbox" id="includeRawXml" /> Include raw XML appendix</label>
         </div>
 
         <div class="actions">
@@ -465,750 +164,492 @@
         </div>
 
         <div class="status" id="status"></div>
-
-        <div class="pills">
-          <div class="pill">Fallback library loader</div>
-          <div class="pill">XML validation</div>
-          <div class="pill">Executive summary</div>
-          <div class="pill">Structured Word report</div>
-        </div>
       </div>
 
       <div class="card">
         <h2>Analysis & Preview</h2>
-        <p class="lead">
-          Review the XML structure and statistics before generating the final Word document.
-        </p>
-
+        <p class="lead">See the mapped summary before exporting the Word report.</p>
         <div class="stats">
-          <div class="stat">
-            <div class="label">Library status</div>
-            <div class="value" id="statLib">Loading…</div>
-          </div>
-          <div class="stat">
-            <div class="label">Root element</div>
-            <div class="value" id="statRoot">—</div>
-          </div>
-          <div class="stat">
-            <div class="label">Total elements</div>
-            <div class="value" id="statElements">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Attributes</div>
-            <div class="value" id="statAttributes">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Max depth</div>
-            <div class="value" id="statDepth">0</div>
-          </div>
-          <div class="stat">
-            <div class="label">Nodes with text</div>
-            <div class="value" id="statTextNodes">0</div>
-          </div>
+          <div class="stat"><div class="label">Library status</div><div class="value" id="statLib">Loading…</div></div>
+          <div class="stat"><div class="label">Detected format</div><div class="value" id="statFormat">—</div></div>
+          <div class="stat"><div class="label">Root element</div><div class="value" id="statRoot">—</div></div>
+          <div class="stat"><div class="label">Total elements</div><div class="value" id="statElements">0</div></div>
+          <div class="stat"><div class="label">Attributes</div><div class="value" id="statAttributes">0</div></div>
+          <div class="stat"><div class="label">Max depth</div><div class="value" id="statDepth">0</div></div>
         </div>
-
         <div class="preview-box">
-          <div class="preview-head">XML Outline Preview</div>
+          <div class="preview-head">Mapped Preview</div>
           <pre id="previewContent">Loading DOCX library…</pre>
         </div>
-
         <div class="note">
-          If your network blocks one CDN, the page automatically tries another. If both are blocked,
-          the upload can still work but DOCX export will remain disabled.
+          Conservative mappings are applied only where they are reasonably identifiable. Unknown codes are left visible in raw form.
         </div>
       </div>
     </div>
   </div>
 
   <script>
-    const state = {
-      docxReady: false,
-      selectedFile: null,
-      xmlDoc: null,
-      xmlText: "",
-      stats: null
-    };
-
+    const state = { docxReady: false, selectedFile: null, xmlDoc: null, xmlText: '', stats: null, detectedFormat: '—' };
     const el = {
-      fileInput: document.getElementById("xmlFile"),
-      dropzone: document.getElementById("dropzone"),
-      fileMeta: document.getElementById("fileMeta"),
-      reportTitle: document.getElementById("reportTitle"),
-      outputName: document.getElementById("outputName"),
-      includeAttributes: document.getElementById("includeAttributes"),
-      includeStats: document.getElementById("includeStats"),
-      includeRawXml: document.getElementById("includeRawXml"),
-      previewBtn: document.getElementById("previewBtn"),
-      convertBtn: document.getElementById("convertBtn"),
-      resetBtn: document.getElementById("resetBtn"),
-      status: document.getElementById("status"),
-      preview: document.getElementById("previewContent"),
-      statLib: document.getElementById("statLib"),
-      statRoot: document.getElementById("statRoot"),
-      statElements: document.getElementById("statElements"),
-      statAttributes: document.getElementById("statAttributes"),
-      statDepth: document.getElementById("statDepth"),
-      statTextNodes: document.getElementById("statTextNodes")
+      fileInput: document.getElementById('xmlFile'),
+      dropzone: document.getElementById('dropzone'),
+      fileMeta: document.getElementById('fileMeta'),
+      reportTitle: document.getElementById('reportTitle'),
+      outputName: document.getElementById('outputName'),
+      includeAttributes: document.getElementById('includeAttributes'),
+      includeStats: document.getElementById('includeStats'),
+      includeRawXml: document.getElementById('includeRawXml'),
+      previewBtn: document.getElementById('previewBtn'),
+      convertBtn: document.getElementById('convertBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      status: document.getElementById('status'),
+      preview: document.getElementById('previewContent'),
+      statLib: document.getElementById('statLib'),
+      statFormat: document.getElementById('statFormat'),
+      statRoot: document.getElementById('statRoot'),
+      statElements: document.getElementById('statElements'),
+      statAttributes: document.getElementById('statAttributes'),
+      statDepth: document.getElementById('statDepth')
     };
 
-    function showStatus(message, type = "info") {
+    const SEX_CODE_MAP = {
+      '0000': 'Not known',
+      '0001': 'Male',
+      '0002': 'Female',
+      '0009': 'Not applicable',
+      '0': 'Not known',
+      '1': 'Male',
+      '2': 'Female',
+      '9': 'Not applicable'
+    };
+
+    const COUNTRY_NUMERIC_MAP = {
+      '004': 'Afghanistan', '008': 'Albania', '012': 'Algeria', '024': 'Angola', '031': 'Azerbaijan',
+      '032': 'Argentina', '036': 'Australia', '040': 'Austria', '050': 'Bangladesh', '051': 'Armenia',
+      '056': 'Belgium', '070': 'Bosnia and Herzegovina', '100': 'Bulgaria', '112': 'Belarus', '144': 'Sri Lanka',
+      '191': 'Croatia', '196': 'Cyprus', '203': 'Czechia', '208': 'Denmark', '218': 'Ecuador',
+      '231': 'Ethiopia', '232': 'Eritrea', '233': 'Estonia', '246': 'Finland', '250': 'France',
+      '268': 'Georgia', '276': 'Germany', '300': 'Greece', '348': 'Hungary', '352': 'Iceland',
+      '356': 'India', '364': 'Iran', '368': 'Iraq', '372': 'Ireland', '376': 'Israel',
+      '380': 'Italy', '400': 'Jordan', '422': 'Lebanon', '428': 'Latvia', '434': 'Libya',
+      '440': 'Lithuania', '442': 'Luxembourg', '470': 'Malta', '504': 'Morocco', '528': 'Netherlands',
+      '578': 'Norway', '586': 'Pakistan', '616': 'Poland', '620': 'Portugal', '642': 'Romania',
+      '643': 'Russia', '682': 'Saudi Arabia', '703': 'Slovakia', '705': 'Slovenia', '706': 'Somalia',
+      '724': 'Spain', '729': 'Sudan', '752': 'Sweden', '756': 'Switzerland', '760': 'Syria',
+      '788': 'Tunisia', '792': 'Turkey', '804': 'Ukraine', '818': 'Egypt', '826': 'United Kingdom',
+      '840': 'United States', '860': 'Uzbekistan'
+    };
+
+    function showStatus(message, type = 'info') {
       el.status.className = `status show ${type}`;
       el.status.textContent = message;
     }
-
-    function clearStatus() {
-      el.status.className = "status";
-      el.status.textContent = "";
-    }
-
-    function setLibStatus(text) {
-      el.statLib.textContent = text;
-    }
-
+    function clearStatus() { el.status.className = 'status'; el.status.textContent = ''; }
+    function setLibStatus(text) { el.statLib.textContent = text; }
     function updateButtons() {
-      const ready = state.docxReady && !!state.xmlDoc;
       el.previewBtn.disabled = !state.xmlDoc;
-      el.convertBtn.disabled = !ready;
+      el.convertBtn.disabled = !(state.docxReady && state.xmlDoc);
     }
-
     function formatBytes(bytes) {
-      if (bytes === 0) return "0 B";
-      if (!bytes) return "—";
-      const units = ["B", "KB", "MB", "GB"];
+      if (bytes === 0) return '0 B';
+      if (!bytes) return '—';
+      const units = ['B','KB','MB','GB'];
       const i = Math.floor(Math.log(bytes) / Math.log(1024));
       return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
     }
-
-    function baseName(filename) {
-      return filename.replace(/\.[^/.]+$/, "");
-    }
-
-    function sanitizeFileName(name) {
-      return name.replace(/[<>:"/\\|?*]+/g, "").trim();
-    }
-
+    function baseName(filename) { return filename.replace(/\.[^/.]+$/, ''); }
+    function sanitizeFileName(name) { return name.replace(/[<>:"/\\|?*]+/g, '').trim(); }
     function isXmlFile(file) {
-      return !!file && (
-        file.name.toLowerCase().endsWith(".xml") ||
-        file.type === "text/xml" ||
-        file.type === "application/xml"
-      );
+      return !!file && (file.name.toLowerCase().endsWith('.xml') || file.type === 'text/xml' || file.type === 'application/xml');
     }
-
+    function directChild(node, name) {
+      if (!node) return null;
+      return Array.from(node.children).find(child => child.nodeName === name) || null;
+    }
+    function nestedChild(node, path) {
+      let current = node;
+      for (const step of path) {
+        current = directChild(current, step);
+        if (!current) return null;
+      }
+      return current;
+    }
     function getDirectText(node) {
+      if (!node) return '';
       return Array.from(node.childNodes)
         .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => n.textContent.trim())
+        .map(n => (n.textContent || '').trim())
         .filter(Boolean)
-        .join(" ");
+        .join(' ');
     }
-
+    function cleanValue(value) {
+      const raw = (value ?? '').toString().trim();
+      if (!raw || raw === '----') return 'Not provided';
+      if (raw === 'true') return 'Yes';
+      if (raw === 'false') return 'No';
+      return raw;
+    }
+    function pad3(value) {
+      const digits = String(value || '').replace(/\D/g, '');
+      if (!digits) return '';
+      return digits.slice(-3).padStart(3, '0');
+    }
+    function mapSexCode(code) {
+      const normalized = String(code || '').trim();
+      const mapped = SEX_CODE_MAP[normalized];
+      return mapped ? `${mapped} [${normalized}]` : normalized || 'Not provided';
+    }
+    function mapCountryNumeric(code) {
+      const key = pad3(code);
+      const mapped = COUNTRY_NUMERIC_MAP[key];
+      return mapped ? `${mapped} [${key}]` : String(code || '').trim() || 'Not provided';
+    }
+    function mapCodeByField(fieldName, code) {
+      const normalized = cleanValue(code);
+      if (normalized === 'Not provided') return normalized;
+      if (fieldName === 'Sex') return mapSexCode(normalized);
+      if (fieldName === 'Nationality') return mapCountryNumeric(normalized);
+      return normalized;
+    }
+    function codeVersionValue(fieldName, node) {
+      if (!node) return 'Not provided';
+      const rawCode = getDirectText(directChild(node, 'Code'));
+      const rawVersion = getDirectText(directChild(node, 'Version'));
+      const code = mapCodeByField(fieldName, rawCode);
+      const version = cleanValue(rawVersion);
+      if (code === 'Not provided' && version === 'Not provided') return 'Not provided';
+      if (version === 'Not provided') return code;
+      return `${code} (version ${version})`;
+    }
+    function smartValue(fieldName, node) {
+      if (!node) return 'Not provided';
+      if (directChild(node, 'Code') || directChild(node, 'Version')) return codeVersionValue(fieldName, node);
+      return cleanValue(getDirectText(node));
+    }
     function analyzeXml(root) {
-      let totalElements = 0;
-      let totalAttributes = 0;
-      let maxDepth = 0;
-      let textNodes = 0;
-
+      let totalElements = 0, totalAttributes = 0, maxDepth = 0;
       function walk(node, depth = 0) {
         totalElements++;
         totalAttributes += node.attributes ? node.attributes.length : 0;
-        if (getDirectText(node)) textNodes++;
         if (depth > maxDepth) maxDepth = depth;
         Array.from(node.children).forEach(child => walk(child, depth + 1));
       }
-
       walk(root);
-
+      return { rootName: root.nodeName, totalElements, totalAttributes, maxDepth };
+    }
+    function detectFormat(root) {
+      if (!root) return 'Unknown XML';
+      if (root.nodeName === 'TakeChargeRequestForm') return 'Dublinet TakeChargeRequestForm';
+      return 'Generic XML';
+    }
+    function buildGenericPreview(node, level = 0) {
+      const indent = '  '.repeat(level);
+      const attrText = el.includeAttributes.checked && node.attributes?.length
+        ? ' ' + Array.from(node.attributes).map(a => `${a.name}="${a.value}"`).join(' ')
+        : '';
+      const directText = getDirectText(node);
+      let line = `${indent}<${node.nodeName}${attrText}>`;
+      if (directText) line += ` ${cleanValue(directText)}`;
+      const lines = [line];
+      Array.from(node.children).forEach(child => lines.push(buildGenericPreview(child, level + 1)));
+      return lines.join('\n');
+    }
+    function extractDublinetData(xmlDoc) {
+      const root = xmlDoc.documentElement;
+      const partI = directChild(root, 'PartI');
+      const applicant = directChild(partI, 'ApplicantInformation');
+      const signatureObj = nestedChild(partI, ['ds:Signature','ds:Object','xades:QualifyingProperties','xades:SignedProperties','xades:SignedSignatureProperties']);
       return {
-        rootName: root.nodeName,
-        totalElements,
-        totalAttributes,
-        maxDepth,
-        textNodes
+        overview: [
+          ['Date of application registration', smartValue('DateOfApplicationRegistration', directChild(applicant, 'DateOfApplicationRegistration'))],
+          ['Requesting MS file number', smartValue('RequestingMSFileNumber', directChild(applicant, 'RequestingMSFileNumber'))],
+          ['Requesting MS Eurodac number', smartValue('RequestingMSEurodacNumber', directChild(applicant, 'RequestingMSEurodacNumber'))],
+          ['Requested MS Eurodac number', smartValue('RequestedMSEurodacNumber', directChild(applicant, 'RequestedMSEurodacNumber'))],
+          ['Linked case available', smartValue('Available', nestedChild(partI, ['LinkedCase','Available']))],
+          ['Total persons covered', smartValue('TotalNumberOfPersonsCovered', directChild(partI, 'TotalNumberOfPersonsCovered'))],
+          ['Requesting Member State', smartValue('RequestingMemberState', directChild(partI, 'RequestingMemberState'))],
+          ['Requested Member State', smartValue('RequestedMemberState', directChild(partI, 'RequestedMemberState'))]
+        ],
+        applicant: [
+          ['Surname', smartValue('Surname', directChild(applicant, 'Surname'))],
+          ['Forename', smartValue('Forename', directChild(applicant, 'Forename'))],
+          ['Name at birth', smartValue('NameAtBirth', directChild(applicant, 'NameAtBirth'))],
+          ['Aliases', smartValue('Aliases', directChild(applicant, 'Aliases'))],
+          ['Date of birth', smartValue('DateOfBirth', directChild(applicant, 'DateOfBirth'))],
+          ['Place of birth', smartValue('PlaceOfBirth', directChild(applicant, 'PlaceOfBirth'))],
+          ['Sex', smartValue('Sex', directChild(applicant, 'Sex'))],
+          ['Nationality', smartValue('Nationality', directChild(applicant, 'Nationality'))],
+          ['Marital status', smartValue('MaritalStatus', directChild(applicant, 'MaritalStatus'))]
+        ],
+        legal: [
+          ['Take-charge request based on', smartValue('TakeChargeRequestBasedOn', directChild(applicant, 'TakeChargeRequestBasedOn'))],
+          ['Template under Article 22(1)', smartValue('TemplateUnderArticle22_1_0003', directChild(applicant, 'TemplateUnderArticle22_1_0003'))],
+          ['Template attachment details', smartValue('TemplateUnderArticle22_1_Attachment_0003', directChild(applicant, 'TemplateUnderArticle22_1_Attachment_0003'))],
+          ['Other relevant information available', smartValue('OtherRelevantInformationAvailable_0003', directChild(applicant, 'OtherRelevantInformationAvailable_0003'))],
+          ['Proof of family presence', smartValue('ProofOfFamilyPresence_0003', directChild(applicant, 'ProofOfFamilyPresence_0003'))],
+          ['Circumstantial evidence of family presence', smartValue('CircumstantialEvidenceOfFamilyPresence_0003', directChild(applicant, 'CircumstantialEvidenceOfFamilyPresence_0003'))],
+          ['Proof of relationship', smartValue('ProofOfRelationship_0003', directChild(applicant, 'ProofOfRelationship_0003'))],
+          ['Circumstantial evidence of relationship', smartValue('CircumstantialEvidenceOfRelationship_0003', directChild(applicant, 'CircumstantialEvidenceOfRelationship_0003'))]
+        ],
+        admin: [
+          ['ID / travel document available', smartValue('IDTravelDocument', directChild(applicant, 'IDTravelDocument'))],
+          ['Request for urgent reply', smartValue('RequestForUrgentReply', directChild(applicant, 'RequestForUrgentReply'))],
+          ['Asylum border procedure', smartValue('AsylumBorderProcedure', directChild(applicant, 'AsylumBorderProcedure'))],
+          ['Applicant is detained', smartValue('ApplicantIsDetained', directChild(applicant, 'ApplicantIsDetained'))]
+        ],
+        signature: [
+          ['Signature present', directChild(partI, 'ds:Signature') ? 'Yes' : 'No'],
+          ['Signing time', smartValue('SigningTime', nestedChild(signatureObj, ['xades:SigningTime']))],
+          ['Signature production country', smartValue('CountryName', nestedChild(signatureObj, ['xades:SignatureProductionPlace','xades:CountryName']))]
+        ]
       };
     }
-
-    function updateStats(stats) {
-      el.statRoot.textContent = stats?.rootName || "—";
-      el.statElements.textContent = stats?.totalElements ?? 0;
-      el.statAttributes.textContent = stats?.totalAttributes ?? 0;
-      el.statDepth.textContent = stats?.maxDepth ?? 0;
-      el.statTextNodes.textContent = stats?.textNodes ?? 0;
+    function buildDublinetPreview(data) {
+      const renderSection = (title, rows) => {
+        const lines = [title];
+        rows.forEach(([label, value]) => lines.push(`- ${label}: ${value}`));
+        return lines.join('\n');
+      };
+      return [
+        '[Dublinet TakeChargeRequestForm detected]',
+        '',
+        renderSection('Request Overview', data.overview),
+        '',
+        renderSection('Applicant Details', data.applicant),
+        '',
+        renderSection('Legal Basis & Evidence', data.legal),
+        '',
+        renderSection('Administrative Status', data.admin),
+        '',
+        renderSection('Signature Summary', data.signature)
+      ].join('\n');
     }
-
-    function buildPreview(node, level = 0) {
-      const indent = "  ".repeat(level);
-      const attrText = el.includeAttributes.checked && node.attributes?.length
-        ? " " + Array.from(node.attributes).map(a => `${a.name}="${a.value}"`).join(" ")
-        : "";
-      const directText = getDirectText(node);
-
-      let line = `${indent}<${node.nodeName}${attrText}>`;
-      if (directText) line += ` ${directText}`;
-
-      const lines = [line];
-      Array.from(node.children).forEach(child => {
-        lines.push(buildPreview(child, level + 1));
-      });
-      return lines.join("\n");
-    }
-
     async function parseXmlFile(file) {
       const text = await file.text();
       const parser = new DOMParser();
-      const parsed = parser.parseFromString(text, "application/xml");
-      if (parsed.getElementsByTagName("parsererror").length) {
-        throw new Error("The uploaded file is not valid XML.");
+      const parsed = parser.parseFromString(text, 'application/xml');
+      if (parsed.getElementsByTagName('parsererror').length) {
+        throw new Error('The uploaded file is not valid XML.');
       }
       return { text, parsed };
     }
-
     async function loadSelectedFile(file) {
       clearStatus();
-
       if (!isXmlFile(file)) {
-        state.selectedFile = null;
-        state.xmlDoc = null;
-        state.xmlText = "";
-        state.stats = null;
-        el.fileMeta.textContent = "No valid XML file selected";
-        el.preview.textContent = "Please upload a valid XML file.";
-        updateStats(null);
+        state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
+        el.fileMeta.textContent = 'No valid XML file selected';
+        el.preview.textContent = 'Please upload a valid XML file.';
+        el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
         updateButtons();
-        showStatus("Please select a valid .xml file.", "error");
+        showStatus('Please select a valid .xml file.', 'error');
         return;
       }
-
       try {
-        el.preview.textContent = "Reading and validating XML…";
-
+        el.preview.textContent = 'Reading and validating XML…';
         const { text, parsed } = await parseXmlFile(file);
-        state.selectedFile = file;
-        state.xmlDoc = parsed;
-        state.xmlText = text;
-        state.stats = analyzeXml(parsed.documentElement);
-
+        state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement);
+        state.detectedFormat = detectFormat(parsed.documentElement);
         el.fileMeta.innerHTML = `<strong>${file.name}</strong> · ${formatBytes(file.size)}`;
-
         if (!el.reportTitle.value.trim()) {
-          el.reportTitle.value = `${state.stats.rootName} XML Report`;
+          el.reportTitle.value = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? 'Dublinet Take Charge Request Report' : `${state.stats.rootName} XML Report`;
         }
-
         el.outputName.value = `${baseName(file.name)}-report.docx`;
-
-        updateStats(state.stats);
-        el.preview.textContent = buildPreview(parsed.documentElement);
+        el.statFormat.textContent = state.detectedFormat;
+        el.statRoot.textContent = state.stats.rootName;
+        el.statElements.textContent = state.stats.totalElements;
+        el.statAttributes.textContent = state.stats.totalAttributes;
+        el.statDepth.textContent = state.stats.maxDepth;
+        el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm'
+          ? buildDublinetPreview(extractDublinetData(parsed))
+          : buildGenericPreview(parsed.documentElement);
         updateButtons();
-
-        if (state.docxReady) {
-          showStatus("XML loaded successfully. You can now generate the DOCX report.", "success");
-        } else {
-          showStatus("XML loaded successfully, but DOCX library is still loading.", "warning");
-        }
+        showStatus(state.docxReady ? 'XML loaded successfully. You can now generate the DOCX report.' : 'XML loaded successfully, but the DOCX library is still loading.', state.docxReady ? 'success' : 'warning');
       } catch (err) {
-        state.selectedFile = null;
-        state.xmlDoc = null;
-        state.xmlText = "";
-        state.stats = null;
-        el.fileMeta.textContent = "No valid XML file selected";
-        el.preview.textContent = "Upload a valid XML file to preview its structure.";
-        updateStats(null);
+        state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
+        el.fileMeta.textContent = 'No valid XML file selected';
+        el.preview.textContent = 'Upload a valid XML file to preview its structure.';
+        el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
         updateButtons();
-        showStatus(err.message || "Failed to parse XML.", "error");
+        showStatus(err.message || 'Failed to parse XML.', 'error');
       }
     }
-
     function resetAll() {
-      state.selectedFile = null;
-      state.xmlDoc = null;
-      state.xmlText = "";
-      state.stats = null;
-
-      el.fileInput.value = "";
-      el.fileMeta.textContent = "No file selected";
-      el.reportTitle.value = "";
-      el.outputName.value = "";
-      el.includeAttributes.checked = true;
-      el.includeStats.checked = true;
-      el.includeRawXml.checked = false;
-
-      updateStats(null);
-      el.preview.textContent = state.docxReady
-        ? "Upload a valid XML file to preview its structure."
-        : "Loading DOCX library…";
-
-      clearStatus();
-      updateButtons();
+      state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
+      el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = '';
+      el.includeAttributes.checked = false; el.includeStats.checked = true; el.includeRawXml.checked = false;
+      el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
+      el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…';
+      clearStatus(); updateButtons();
     }
-
     function loadScript(src) {
       return new Promise((resolve, reject) => {
-        const script = document.createElement("script");
-        script.src = src;
-        script.async = true;
+        const script = document.createElement('script');
+        script.src = src; script.async = true;
         script.onload = () => resolve(src);
         script.onerror = () => reject(new Error(`Failed to load ${src}`));
         document.head.appendChild(script);
       });
     }
-
     async function ensureDocxLoaded() {
       const sources = [
-        "https://cdn.jsdelivr.net/npm/docx@8.2.1/build/index.umd.js",
-        "https://unpkg.com/docx@8.2.1/build/index.umd.js"
+        'https://cdn.jsdelivr.net/npm/docx@8.2.1/build/index.umd.js',
+        'https://unpkg.com/docx@8.2.1/build/index.umd.js'
       ];
-
       for (const src of sources) {
         try {
-          setLibStatus("Loading…");
+          setLibStatus('Loading…');
           await loadScript(src);
-          if (window.docx) {
-            state.docxReady = true;
-            setLibStatus("Ready");
-            return;
-          }
-        } catch (e) {
-          // try next source
-        }
+          if (window.docx) { state.docxReady = true; setLibStatus('Ready'); return; }
+        } catch (e) {}
       }
-
-      state.docxReady = false;
-      setLibStatus("Blocked");
-      throw new Error("DOCX library failed to load from all sources.");
+      state.docxReady = false; setLibStatus('Blocked');
+      throw new Error('DOCX library failed to load from all sources.');
     }
-
     function createSummaryTable(docxLib, rows) {
-      const { Table, TableRow, TableCell, Paragraph, WidthType, BorderStyle } = docxLib;
-
-      const makeCell = (text, bold = false, width = 50, fill = null) => {
-        return new TableCell({
-          width: { size: width, type: WidthType.PERCENTAGE },
-          shading: fill ? { fill } : undefined,
-          borders: {
-            top: { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" },
-            bottom: { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" },
-            left: { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" },
-            right: { style: BorderStyle.SINGLE, size: 1, color: "D1D5DB" }
-          },
-          children: [
-            new Paragraph({
-              children: [
-                new window.docx.TextRun({
-                  text: String(text ?? "—"),
-                  bold
-                })
-              ]
-            })
-          ]
-        });
-      };
-
+      const { Table, TableRow, TableCell, Paragraph, WidthType, BorderStyle, TextRun } = docxLib;
+      const makeCell = (text, bold = false, width = 50, fill = null) => new TableCell({
+        width: { size: width, type: WidthType.PERCENTAGE },
+        shading: fill ? { fill } : undefined,
+        borders: {
+          top: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
+          bottom: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
+          left: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
+          right: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' }
+        },
+        children: [new Paragraph({ children: [new TextRun({ text: String(text ?? '—'), bold })] })]
+      });
       return new Table({
         width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: rows.map(([label, value]) => new TableRow({
-          children: [
-            makeCell(label, true, 35, "F8FAFC"),
-            makeCell(value, false, 65, null)
-          ]
-        }))
+        rows: rows.map(([label, value]) => new TableRow({ children: [makeCell(label, true, 35, 'F8FAFC'), makeCell(value, false, 65)] }))
       });
     }
-
-    function nodeToReportBlocks(node, level = 0, path = "") {
+    function genericBlocks(node, level = 0, path = '') {
       const { Paragraph, TextRun, HeadingLevel } = window.docx;
       const blocks = [];
       const currentPath = path ? `${path} / ${node.nodeName}` : node.nodeName;
-      const attrs = node.attributes ? Array.from(node.attributes) : [];
-      const children = Array.from(node.children);
-      const directText = getDirectText(node);
-
+      const directText = cleanValue(getDirectText(node));
       if (level === 0) {
-        blocks.push(
-          new Paragraph({
-            text: `Root Element: ${node.nodeName}`,
-            heading: HeadingLevel.HEADING_1,
-            spacing: { before: 180, after: 140 }
-          })
-        );
-      } else if (level === 1) {
-        blocks.push(
-          new Paragraph({
-            text: node.nodeName,
-            heading: HeadingLevel.HEADING_1,
-            spacing: { before: 180, after: 100 }
-          })
-        );
-      } else if (level === 2) {
-        blocks.push(
-          new Paragraph({
-            text: node.nodeName,
-            heading: HeadingLevel.HEADING_2,
-            spacing: { before: 160, after: 90 }
-          })
-        );
-      } else if (level === 3) {
-        blocks.push(
-          new Paragraph({
-            text: node.nodeName,
-            heading: HeadingLevel.HEADING_3,
-            spacing: { before: 120, after: 70 }
-          })
-        );
+        blocks.push(new Paragraph({ text: `Root Element: ${node.nodeName}`, heading: HeadingLevel.HEADING_1, spacing: { before: 180, after: 120 } }));
+      } else if (level <= 3) {
+        blocks.push(new Paragraph({ text: node.nodeName, heading: HeadingLevel[`HEADING_${Math.min(level,3)}`], spacing: { before: 140, after: 80 } }));
       } else {
-        blocks.push(
-          new Paragraph({
-            indent: { left: Math.min(level, 8) * 280 },
-            spacing: { before: 40, after: 30 },
-            children: [
-              new TextRun({ text: "• ", bold: true }),
-              new TextRun({ text: node.nodeName, bold: true }),
-              new TextRun({ text: `  (${currentPath})`, italics: true, color: "64748B" })
-            ]
-          })
-        );
+        blocks.push(new Paragraph({ indent: { left: Math.min(level, 8) * 280 }, spacing: { before: 30, after: 30 }, children: [new TextRun({ text: '• ', bold: true }), new TextRun({ text: node.nodeName, bold: true })] }));
       }
-
-      if (level <= 3) {
-        blocks.push(
-          new Paragraph({
-            spacing: { after: 60 },
-            children: [
-              new TextRun({ text: "Path: ", bold: true }),
-              new TextRun({ text: currentPath, color: "334155" })
-            ]
-          })
-        );
-      }
-
-      if (el.includeAttributes.checked && attrs.length) {
-        blocks.push(
-          new Paragraph({
-            indent: { left: Math.min(level, 8) * 180 },
-            spacing: { after: 60 },
-            children: [
-              new TextRun({ text: "Attributes: ", bold: true }),
-              new TextRun({ text: attrs.map(a => `${a.name}="${a.value}"`).join(", ") })
-            ]
-          })
-        );
-      }
-
-      if (directText) {
-        blocks.push(
-          new Paragraph({
-            indent: { left: Math.min(level, 8) * 180 },
-            spacing: { after: 80 },
-            children: [
-              new TextRun({ text: "Text content: ", bold: true }),
-              new TextRun({ text: directText })
-            ]
-          })
-        );
-      }
-
-      if (!directText && !attrs.length && children.length === 0) {
-        blocks.push(
-          new Paragraph({
-            indent: { left: Math.min(level, 8) * 180 },
-            spacing: { after: 60 },
-            children: [
-              new TextRun({ text: "Empty element", italics: true, color: "64748B" })
-            ]
-          })
-        );
-      }
-
-      if (children.length && level <= 3) {
-        blocks.push(
-          new Paragraph({
-            spacing: { after: 70 },
-            children: [
-              new TextRun({ text: "Child elements: ", bold: true }),
-              new TextRun({ text: String(children.length) })
-            ]
-          })
-        );
-      }
-
-      children.forEach(child => {
-        blocks.push(...nodeToReportBlocks(child, level + 1, currentPath));
-      });
-
+      blocks.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Path: ', bold: true }), new TextRun({ text: currentPath })] }));
+      if (directText !== 'Not provided') blocks.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Text content: ', bold: true }), new TextRun({ text: directText })] }));
+      Array.from(node.children).forEach(child => blocks.push(...genericBlocks(child, level + 1, currentPath)));
       return blocks;
     }
-
     async function generateReport() {
-      if (!state.xmlDoc) {
-        showStatus("Please upload a valid XML file first.", "error");
-        return;
-      }
-
+      if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
       if (!state.docxReady || !window.docx) {
-        showStatus(
-          "DOCX library is not available.\nCheck internet access or CDN blocking and reload the page.",
-          "error"
-        );
+        showStatus('DOCX library is not available. Check internet access or CDN blocking and reload the page.', 'error');
         return;
       }
-
       try {
-        showStatus("Generating Word report…", "info");
+        showStatus('Generating Word report…', 'info');
         el.convertBtn.disabled = true;
-
-        const {
-          Document,
-          Packer,
-          Paragraph,
-          TextRun,
-          HeadingLevel,
-          AlignmentType
-        } = window.docx;
-
-        const title = el.reportTitle.value.trim() || "XML Structure Report";
-        const rawName = el.outputName.value.trim() || "xml-report.docx";
-        const fileName = sanitizeFileName(
-          rawName.endsWith(".docx") ? rawName : `${rawName}.docx`
-        ) || "xml-report.docx";
-
+        const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+        const title = el.reportTitle.value.trim() || 'XML Report';
+        const rawName = el.outputName.value.trim() || 'xml-report.docx';
+        const fileName = sanitizeFileName(rawName.endsWith('.docx') ? rawName : `${rawName}.docx`) || 'xml-report.docx';
         const createdAt = new Date().toLocaleString();
-
         const children = [];
-
-        children.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { before: 240, after: 180 },
-            children: [
-              new TextRun({
-                text: title,
-                bold: true,
-                size: 34,
-                color: "0F172A"
-              })
-            ]
-          })
-        );
-
-        children.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 120 },
-            children: [
-              new TextRun({
-                text: "Generated XML Report",
-                italics: true,
-                size: 22,
-                color: "475569"
-              })
-            ]
-          })
-        );
-
-        children.push(
-          new Paragraph({
-            alignment: AlignmentType.CENTER,
-            spacing: { after: 260 },
-            children: [
-              new TextRun({
-                text: `Source File: ${state.selectedFile.name}`,
-                size: 22,
-                color: "334155"
-              })
-            ]
-          })
-        );
-
-        children.push(
-          new Paragraph({
-            text: "Overview",
-            heading: HeadingLevel.HEADING_1,
-            spacing: { before: 120, after: 120 }
-          })
-        );
-
-        children.push(
-          new Paragraph({
-            spacing: { after: 180 },
-            children: [
-              new TextRun({
-                text:
-                  "This document summarizes the uploaded XML file in a report-style format. It includes high-level metadata, structural statistics, and a hierarchical breakdown of the document contents for easier reading in Microsoft Word.",
-                color: "334155"
-              })
-            ]
-          })
-        );
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 240, after: 180 }, children: [new TextRun({ text: title, bold: true, size: 34, color: '0F172A' })] }));
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: state.detectedFormat, italics: true, size: 22, color: '475569' })] }));
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: `Source File: ${state.selectedFile.name}`, size: 22, color: '334155' })] }));
+        children.push(new Paragraph({ text: 'Overview', heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 100 } }));
+        children.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? 'This report restructures the XML into a case-oriented summary. Safe code mappings are applied for recognizable values such as sex codes and numeric country/nationality codes; unknown or uncertain codes remain visible in raw form.' : 'This document summarizes the uploaded XML file in a structured Word report.', color: '334155' })] }));
 
         if (el.includeStats.checked && state.stats) {
-          children.push(
-            new Paragraph({
-              text: "Executive Summary",
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 120, after: 120 }
-            })
-          );
-
-          children.push(
-            createSummaryTable(window.docx, [
-              ["Report Title", title],
-              ["Source File", state.selectedFile.name],
-              ["Root Element", state.stats.rootName],
-              ["Total Elements", state.stats.totalElements],
-              ["Total Attributes", state.stats.totalAttributes],
-              ["Nodes With Text", state.stats.textNodes],
-              ["Maximum Depth", state.stats.maxDepth],
-              ["Generated On", createdAt]
-            ])
-          );
-
-          children.push(new Paragraph({ text: "", spacing: { after: 160 } }));
+          children.push(new Paragraph({ text: 'Executive Summary', heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 100 } }));
+          children.push(createSummaryTable(window.docx, [
+            ['Report Title', title],
+            ['Detected Format', state.detectedFormat],
+            ['Source File', state.selectedFile.name],
+            ['Root Element', state.stats.rootName],
+            ['Total Elements', state.stats.totalElements],
+            ['Total Attributes', state.stats.totalAttributes],
+            ['Maximum Depth', state.stats.maxDepth],
+            ['Generated On', createdAt]
+          ]));
+          children.push(new Paragraph({ text: '', spacing: { after: 140 } }));
         }
 
-        children.push(
-          new Paragraph({
-            text: "Detailed XML Structure",
-            heading: HeadingLevel.HEADING_1,
-            spacing: { before: 140, after: 120 }
-          })
-        );
-
-        children.push(
-          new Paragraph({
-            spacing: { after: 150 },
-            children: [
-              new TextRun({
-                text:
-                  "The following sections describe the XML hierarchy. Top-level nodes appear as major sections, and deeper nested nodes are formatted as progressively detailed subsections.",
-                color: "334155"
-              })
-            ]
-          })
-        );
-
-        children.push(...nodeToReportBlocks(state.xmlDoc.documentElement));
+        if (state.detectedFormat === 'Dublinet TakeChargeRequestForm') {
+          const data = extractDublinetData(state.xmlDoc);
+          const sections = [
+            ['Request Overview', data.overview],
+            ['Applicant Details', data.applicant],
+            ['Legal Basis & Evidence', data.legal],
+            ['Administrative Status', data.admin],
+            ['Signature Summary', data.signature]
+          ];
+          sections.forEach(([sectionTitle, rows]) => {
+            children.push(new Paragraph({ text: sectionTitle, heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 100 } }));
+            children.push(createSummaryTable(window.docx, rows));
+            children.push(new Paragraph({ text: '', spacing: { after: 120 } }));
+          });
+          children.push(new Paragraph({ text: 'Notes on code mapping', heading: HeadingLevel.HEADING_1, spacing: { before: 100, after: 90 } }));
+          children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Sex codes are mapped conservatively using the ISO/IEC 5218-style 1/2/0/9 scheme when present in padded form (for example, 0001 → Male).', color: '334155' })] }));
+          children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Numeric nationality values are mapped where they match recognizable ISO 3166 numeric country codes (for example, 0032 → Argentina [032]).', color: '334155' })] }));
+          children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: 'Uncertain internal Dublinet codes such as some member-state or legal-basis codes are intentionally left raw to avoid incorrect interpretation.', color: '334155' })] }));
+        } else {
+          children.push(new Paragraph({ text: 'Detailed XML Structure', heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 100 } }));
+          children.push(...genericBlocks(state.xmlDoc.documentElement));
+        }
 
         if (el.includeRawXml.checked) {
-          children.push(
-            new Paragraph({
-              text: "Appendix: Raw XML",
-              heading: HeadingLevel.HEADING_1,
-              spacing: { before: 220, after: 120 }
-            })
-          );
-
+          children.push(new Paragraph({ text: 'Appendix: Raw XML', heading: HeadingLevel.HEADING_1, spacing: { before: 220, after: 100 } }));
           const serializer = new XMLSerializer();
           const xmlString = serializer.serializeToString(state.xmlDoc);
           const wrappedLines = xmlString.match(/.{1,110}/g) || [xmlString];
-
           wrappedLines.forEach(line => {
-            children.push(
-              new Paragraph({
-                spacing: { after: 20 },
-                children: [
-                  new TextRun({
-                    text: line,
-                    font: "Courier New",
-                    size: 18,
-                    color: "334155"
-                  })
-                ]
-              })
-            );
+            children.push(new Paragraph({ spacing: { after: 18 }, children: [new TextRun({ text: line, font: 'Courier New', size: 18, color: '334155' })] }));
           });
         }
 
-        const doc = new Document({
-          sections: [
-            {
-              properties: {},
-              children
-            }
-          ]
-        });
-
+        const doc = new Document({ sections: [{ properties: {}, children }] });
         const blob = await Packer.toBlob(doc);
         const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1500);
-
-        showStatus("DOCX report generated successfully. Download should start automatically.", "success");
+        showStatus('DOCX report generated successfully. Download should start automatically.', 'success');
       } catch (err) {
         console.error(err);
-        showStatus("Conversion failed while generating the DOCX report.", "error");
+        showStatus('Conversion failed while generating the DOCX report.', 'error');
       } finally {
         updateButtons();
       }
     }
 
-    el.fileInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (file) await loadSelectedFile(file);
+    el.fileInput.addEventListener('change', async (e) => { const file = e.target.files[0]; if (file) await loadSelectedFile(file); });
+    el.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); el.dropzone.classList.add('drag'); });
+    el.dropzone.addEventListener('dragleave', () => { el.dropzone.classList.remove('drag'); });
+    el.dropzone.addEventListener('drop', async (e) => { e.preventDefault(); el.dropzone.classList.remove('drag'); const file = e.dataTransfer.files[0]; if (file) await loadSelectedFile(file); });
+    el.includeAttributes.addEventListener('change', () => { if (state.xmlDoc) el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? buildDublinetPreview(extractDublinetData(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement); });
+    el.previewBtn.addEventListener('click', () => {
+      if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
+      el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? buildDublinetPreview(extractDublinetData(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement);
+      showStatus('Preview refreshed.', 'info');
     });
+    el.convertBtn.addEventListener('click', generateReport);
+    el.resetBtn.addEventListener('click', resetAll);
 
-    el.dropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      el.dropzone.classList.add("drag");
-    });
-
-    el.dropzone.addEventListener("dragleave", () => {
-      el.dropzone.classList.remove("drag");
-    });
-
-    el.dropzone.addEventListener("drop", async (e) => {
-      e.preventDefault();
-      el.dropzone.classList.remove("drag");
-      const file = e.dataTransfer.files[0];
-      if (file) await loadSelectedFile(file);
-    });
-
-    el.includeAttributes.addEventListener("change", () => {
-      if (state.xmlDoc) {
-        el.preview.textContent = buildPreview(state.xmlDoc.documentElement);
-      }
-    });
-
-    el.previewBtn.addEventListener("click", () => {
-      if (!state.xmlDoc) {
-        showStatus("Please upload a valid XML file first.", "error");
-        return;
-      }
-      el.preview.textContent = buildPreview(state.xmlDoc.documentElement);
-      showStatus("Preview refreshed.", "info");
-    });
-
-    el.convertBtn.addEventListener("click", generateReport);
-    el.resetBtn.addEventListener("click", resetAll);
-
-    document.addEventListener("DOMContentLoaded", async () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       resetAll();
-      showStatus("Loading DOCX library…", "info");
-
+      showStatus('Loading DOCX library…', 'info');
       try {
         await ensureDocxLoaded();
         updateButtons();
-
-        if (state.xmlDoc) {
-          showStatus("DOCX library loaded. You can now generate the report.", "success");
-        } else {
-          showStatus("DOCX library loaded successfully. Upload an XML file to continue.", "success");
-          el.preview.textContent = "Upload a valid XML file to preview its structure.";
-        }
+        el.preview.textContent = 'Upload a valid XML file to preview its structure.';
+        showStatus('DOCX library loaded successfully. Upload an XML file to continue.', 'success');
       } catch (err) {
         console.error(err);
         updateButtons();
-        el.preview.textContent =
-          "DOCX library failed to load.\nYou can still test XML upload, but DOCX export will stay disabled.";
-        showStatus(
-          "DOCX library failed to load from all sources.\nCheck internet access, firewall rules, ad blockers, or CSP restrictions.",
-          "error"
-        );
+        el.preview.textContent = 'DOCX library failed to load. You can still test XML upload, but DOCX export will stay disabled.';
+        showStatus('DOCX library failed to load from all sources. Check internet access, ad blockers, firewall rules, or CSP restrictions.', 'error');
       }
     });
   </script>
