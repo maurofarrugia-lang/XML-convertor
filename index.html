@@ -1,37 +1,48 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <title>XML to Word Converter</title>
 
-  <!-- Load DOCX library -->
+  <!-- Load DOCX library (fixed link) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.2.1/docx.min.js"></script>
 
-  <!-- Styling -->
   <style>
     body {
       font-family: Arial, sans-serif;
-      background: #f5f7fa;
+      background: #eef2f7;
       text-align: center;
       padding: 40px;
     }
 
     h2 {
-      color: #123c69;
+      color: #1e3a8a;
+      font-weight: 700;
+    }
+
+    #icon {
+      font-size: 65px;
+      margin-bottom: 20px;
+      color: #2563eb;
     }
 
     .upload-box {
       background: white;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
-      border: 2px dashed #4a90e2;
-      width: 50%;
+      border: 2px dashed #2563eb;
+      width: 60%;
       margin: 20px auto;
       cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .upload-box:hover {
+      background: #f0f7ff;
     }
 
     .button {
-      background: #4a90e2;
+      background: #2563eb;
       color: white;
       border: none;
       padding: 12px 25px;
@@ -39,71 +50,73 @@
       border-radius: 8px;
       cursor: pointer;
       margin-top: 20px;
+      transition: 0.2s;
     }
 
     .button:hover {
-      background: #357ABD;
+      background: #1e40af;
     }
 
     #status {
       margin-top: 20px;
+      font-size: 18px;
       font-weight: bold;
-      color: #ff5733;
       display: none;
-    }
-
-    #icon {
-      font-size: 60px;
-      margin-bottom: 20px;
-      color: #4a90e2;
     }
   </style>
 </head>
 
 <body>
 
-  <div id="icon">📄➡️📘</div>
+  <div id="icon">📄 ➜ 📘</div>
 
   <h2>Online XML → DOCX Converter</h2>
 
   <label class="upload-box">
     <input type="file" id="xmlFile" accept=".xml" style="display:none;">
-    <strong>Click here to upload XML</strong>
+    <strong>Click here to upload XML file</strong>
   </label>
 
   <button class="button" onclick="convert()">Convert to DOCX</button>
 
-  <div id="status">⏳ Processing… Please wait…</div>
+  <div id="status">⏳ Processing… please wait…</div>
 
   <script>
     async function convert() {
       const fileInput = document.getElementById("xmlFile");
+      const status = document.getElementById("status");
 
       if (!fileInput.files.length) {
         alert("Please upload an XML file first.");
         return;
       }
 
-      document.getElementById("status").style.display = "block";
+      status.style.display = "block";
+      status.style.color = "#d97706"; // orange
 
-      // Give a short delay so the user sees the waiting icon
-      await new Promise(resolve => setTimeout(resolve, 700));
+      // Show waiting animation
+      await new Promise(resolve => setTimeout(resolve, 600));
 
       const xmlText = await fileInput.files[0].text();
       const parser = new DOMParser();
       const xmlDoc = parser.parseFromString(xmlText, "text/xml");
 
       const { Document, Packer, Paragraph } = docx;
-      const doc = new Document();
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: []
+        }]
+      });
 
       function processNode(node, level = 0) {
         const tag = node.nodeName;
         const text = node.textContent.trim();
-        doc.addSection({
-          children: [
-            new Paragraph(`${"  ".repeat(level)}${tag}: ${text}`)
-          ]
-        });
+
+        doc.sections[0].children.push(
+          new Paragraph(`${"   ".repeat(level)}${tag}: ${text}`)
+        );
 
         [...node.children].forEach(child => processNode(child, level + 1));
       }
@@ -116,8 +129,8 @@
       link.download = "converted.docx";
       link.click();
 
-      document.getElementById("status").innerHTML = "✅ Done! Your DOCX is downloading…";
-      document.getElementById("status").style.color = "#28a745";
+      status.textContent = "✅ Done! Your Word file is downloading.";
+      status.style.color = "#16a34a"; // green
     }
   </script>
 
