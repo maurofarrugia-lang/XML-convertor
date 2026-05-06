@@ -1,39 +1,30 @@
-# XML to DOCX Report Converter
+# DubliNet XML to DOCX Converter — Annex II Edition
 
-A browser-based XML to DOCX converter with a polished interface, XML validation, structure preview, and report-style Word export.
+A browser-based XML to DOCX converter tailored for DubliNet `TakeChargeRequestForm` exports.
 
-## Features
+## What is different in this version
 
-- Upload XML files with click or drag-and-drop
-- Validate XML before conversion
-- Preview XML structure in the browser
-- Generate a polished DOCX report
-- Include XML attributes in the report
-- Include an executive summary table
-- Optionally append raw XML as an appendix
-- Uses browser-side DOCX generation with CDN fallback loading
+- Uses embedded official DubliNet code tables extracted from the provided workbook
+- Formats output as an Annex II-style report for the submission of a take charge request
+- Maps recognized code values for nationality, gender, marital status, and take charge legal basis
+- Leaves unknown or unmatched values visible in raw form instead of guessing
+- Includes a cleaner transmission and signature summary
 
 ## Files
 
-- `index.html` — main app
-- `.gitignore` — basic ignore rules for GitHub repo hygiene
+- `index.html` — main browser app
+- `.gitignore` — basic ignore rules
+- `README.md` — usage notes
 
 ## How to use
 
 1. Open `index.html` in a browser.
-2. Upload a valid `.xml` file.
-3. Review the preview and options.
+2. Upload a valid DubliNet XML file.
+3. Review the Annex II preview.
 4. Click **Generate DOCX Report**.
-
-## Deploy on GitHub Pages
-
-1. Create a new GitHub repository.
-2. Upload the files from this folder.
-3. Commit and push.
-4. In GitHub, go to **Settings → Pages**.
-5. Set the source branch to your main branch and root folder.
-6. Save, then open the generated GitHub Pages URL.
 
 ## Notes
 
-This project loads the DOCX library from browser CDNs. If your network blocks those CDNs, DOCX export may not be available until access is allowed.
+This project loads the DOCX library from browser CDNs with fallback loading. If your environment blocks those CDNs, DOCX export will not be available until access is allowed.
+
+The embedded mappings come from the supplied DubliNet code workbook. The visual output structure follows the supplied Annex II PDF layout.

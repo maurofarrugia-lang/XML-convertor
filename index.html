@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>XML to DOCX Report Converter — Dublinet Code Mapping</title>
+  <title>DubliNet Annex II XML to DOCX Converter</title>
   <style>
     :root {
       --bg: #f4f7fb;
-      --bg-accent: #eaf2ff;
-      --card: rgba(255, 255, 255, 0.86);
+      --bg-accent: #e8f0ff;
+      --card: rgba(255,255,255,0.9);
       --text: #0f172a;
       --muted: #64748b;
-      --line: #e2e8f0;
+      --line: #dbe3ee;
       --primary: #2563eb;
       --primary-dark: #1d4ed8;
       --primary-soft: #eff6ff;
@@ -33,18 +33,18 @@
       min-height: 100vh;
       padding: 32px 16px 48px;
     }
-    .app { max-width: 1120px; margin: 0 auto; }
-    .hero { text-align: center; margin-bottom: 26px; }
+    .app { max-width: 1160px; margin: 0 auto; }
+    .hero { text-align: center; margin-bottom: 24px; }
     .badge {
       display: inline-flex; align-items: center; gap: 8px; padding: 8px 14px;
-      border-radius: 999px; background: rgba(255,255,255,0.75); border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 999px; background: rgba(255,255,255,0.78); border: 1px solid rgba(255,255,255,0.95);
       box-shadow: var(--shadow); color: var(--primary-dark); font-size: 13px; font-weight: 700;
       margin-bottom: 14px; backdrop-filter: blur(12px);
     }
     h1 { margin: 0; font-size: clamp(30px, 4vw, 46px); line-height: 1.05; letter-spacing: -0.03em; }
-    .subtitle { max-width: 780px; margin: 12px auto 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
-    .layout { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 18px; }
-    @media (max-width: 930px) { .layout { grid-template-columns: 1fr; } }
+    .subtitle { max-width: 820px; margin: 12px auto 0; color: var(--muted); font-size: 15px; line-height: 1.72; }
+    .layout { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 18px; }
+    @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
     .card {
       background: var(--card); border: 1px solid rgba(255,255,255,0.95); border-radius: var(--radius);
       box-shadow: var(--shadow); backdrop-filter: blur(14px); padding: 22px;
@@ -53,51 +53,32 @@
     .lead { margin: 0 0 18px; font-size: 14px; color: var(--muted); line-height: 1.65; }
     .dropzone {
       display: block; border: 1.5px dashed #93c5fd; background: linear-gradient(180deg, #ffffff, #f8fbff);
-      border-radius: 18px; padding: 30px 18px; text-align: center; cursor: pointer; transition: 0.18s ease;
-      user-select: none;
+      border-radius: 18px; padding: 30px 18px; text-align: center; cursor: pointer; transition: 0.18s ease; user-select: none;
     }
     .dropzone:hover, .dropzone.drag { border-color: var(--primary); background: var(--primary-soft); transform: translateY(-1px); }
-    .dropzone .icon {
-      width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center;
-      background: #dbeafe; color: var(--primary-dark); font-size: 24px; font-weight: 800; letter-spacing: 0.04em;
-    }
+    .dropzone .icon { width: 60px; height: 60px; margin: 0 auto 14px; border-radius: 18px; display: grid; place-items: center; background: #dbeafe; color: var(--primary-dark); font-size: 24px; font-weight: 800; letter-spacing: 0.04em; }
     .dropzone .title { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
     .dropzone .hint { color: var(--muted); font-size: 13px; }
     input[type="file"] { display: none; }
-    .meta {
-      margin-top: 14px; background: #fff; border: 1px solid var(--line); border-radius: 14px;
-      padding: 12px 14px; font-size: 14px; color: var(--muted);
-    }
+    .meta { margin-top: 14px; background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; font-size: 14px; color: var(--muted); }
     .meta strong { color: var(--text); }
     .grid { display: grid; gap: 14px; margin-top: 16px; }
     .grid.two { grid-template-columns: 1fr 1fr; }
     @media (max-width: 720px) { .grid.two { grid-template-columns: 1fr; } }
     .field { display: flex; flex-direction: column; gap: 8px; }
     .field label { font-size: 13px; font-weight: 700; color: #334155; }
-    .field input[type="text"] {
-      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px;
-      padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease;
-    }
+    .field input[type="text"] { width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease; }
     .field input[type="text"]:focus { border-color: #93c5fd; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
     .checks { display: grid; gap: 10px; margin-top: 8px; }
-    .check {
-      display: flex; align-items: center; gap: 10px; background: white; border: 1px solid var(--line);
-      border-radius: 12px; padding: 11px 12px; font-size: 14px;
-    }
+    .check { display: flex; align-items: center; gap: 10px; background: white; border: 1px solid var(--line); border-radius: 12px; padding: 11px 12px; font-size: 14px; }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-    button {
-      border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 800;
-      cursor: pointer; transition: 0.18s ease;
-    }
+    button { border: 0; border-radius: 12px; padding: 12px 16px; font-size: 14px; font-weight: 800; cursor: pointer; transition: 0.18s ease; }
     button.primary { background: var(--primary); color: white; }
     button.primary:hover { background: var(--primary-dark); }
     button.secondary { background: white; border: 1px solid var(--line); color: var(--text); }
     button.secondary:hover { background: #f8fafc; }
     button:disabled { opacity: 0.55; cursor: not-allowed; }
-    .status {
-      display: none; margin-top: 16px; padding: 12px 14px; border-radius: 14px; font-size: 14px;
-      line-height: 1.55; border: 1px solid transparent; white-space: pre-wrap;
-    }
+    .status { display: none; margin-top: 16px; padding: 12px 14px; border-radius: 14px; font-size: 14px; line-height: 1.55; border: 1px solid transparent; white-space: pre-wrap; }
     .status.show { display: block; }
     .status.info { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
     .status.success { background: #f0fdf4; color: var(--success); border-color: #bbf7d0; }
@@ -109,32 +90,30 @@
     .stat .value { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; word-break: break-word; }
     .preview-box { margin-top: 16px; background: #0f172a; color: #e2e8f0; border-radius: 16px; overflow: hidden; border: 1px solid #1e293b; }
     .preview-head { padding: 12px 14px; font-size: 13px; font-weight: 800; color: #cbd5e1; background: #111827; border-bottom: 1px solid #1e293b; }
-    pre {
-      margin: 0; padding: 16px; font-size: 12.5px; line-height: 1.68; white-space: pre-wrap; word-break: break-word;
-      max-height: 560px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
+    pre { margin: 0; padding: 16px; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; max-height: 560px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .note { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.65; }
   </style>
 </head>
 <body>
   <div class="app">
     <div class="hero">
-      <div class="badge">Dublinet-aware · Code Mapping Edition</div>
-      <h1>XML to DOCX Report Converter</h1>
+      <div class="badge">Annex II Layout · Official DubliNet Code Tables</div>
+      <h1>DubliNet XML to DOCX Converter</h1>
       <p class="subtitle">
-        This version detects <strong>TakeChargeRequestForm</strong> exports and maps safe, common coded values into more human-readable labels where possible.
+        This version is rebuilt around the official DubliNet code table workbook and the Annex II take charge form layout.
+        It maps recognized codes to their official labels and generates a Word report that follows the structure of the standard form for the submission of a take charge request.
       </p>
     </div>
 
     <div class="layout">
       <div class="card">
         <h2>Upload & Settings</h2>
-        <p class="lead">Upload your XML file and export a cleaner, code-aware Dublinet report.</p>
+        <p class="lead">Upload a DubliNet XML file and export an Annex II-style Word report with official code mappings embedded in the page.</p>
 
         <label class="dropzone" id="dropzone" for="xmlFile">
           <div class="icon">XML</div>
           <div class="title">Click to upload or drag & drop your XML file</div>
-          <div class="hint">Best results for Dublinet TakeChargeRequestForm exports</div>
+          <div class="hint">Best results for TakeChargeRequestForm exports</div>
         </label>
 
         <input type="file" id="xmlFile" accept=".xml,text/xml,application/xml" />
@@ -143,17 +122,17 @@
         <div class="grid two">
           <div class="field">
             <label for="reportTitle">Report title</label>
-            <input type="text" id="reportTitle" placeholder="Dublinet Case Report" />
+            <input type="text" id="reportTitle" placeholder="Standard form for the submission of a take charge request" />
           </div>
           <div class="field">
             <label for="outputName">Output DOCX filename</label>
-            <input type="text" id="outputName" placeholder="dublinet-report.docx" />
+            <input type="text" id="outputName" placeholder="take-charge-request-report.docx" />
           </div>
         </div>
 
         <div class="checks">
-          <label class="check"><input type="checkbox" id="includeAttributes" /> Include XML attributes in appendix</label>
           <label class="check"><input type="checkbox" id="includeStats" checked /> Include executive summary table</label>
+          <label class="check"><input type="checkbox" id="includeTech" checked /> Include transmission and signature summary</label>
           <label class="check"><input type="checkbox" id="includeRawXml" /> Include raw XML appendix</label>
         </div>
 
@@ -168,7 +147,7 @@
 
       <div class="card">
         <h2>Analysis & Preview</h2>
-        <p class="lead">See the mapped summary before exporting the Word report.</p>
+        <p class="lead">Review the detected format and mapped Annex II summary before exporting the final Word report.</p>
         <div class="stats">
           <div class="stat"><div class="label">Library status</div><div class="value" id="statLib">Loading…</div></div>
           <div class="stat"><div class="label">Detected format</div><div class="value" id="statFormat">—</div></div>
@@ -178,17 +157,19 @@
           <div class="stat"><div class="label">Max depth</div><div class="value" id="statDepth">0</div></div>
         </div>
         <div class="preview-box">
-          <div class="preview-head">Mapped Preview</div>
+          <div class="preview-head">Annex II Preview</div>
           <pre id="previewContent">Loading DOCX library…</pre>
         </div>
         <div class="note">
-          Conservative mappings are applied only where they are reasonably identifiable. Unknown codes are left visible in raw form.
+          Official DubliNet code tables are embedded in this file for offline use after page load. Unknown values remain visible in raw form instead of being guessed.
         </div>
       </div>
     </div>
   </div>
 
   <script>
+    const CODE_TABLES = {"CT02_NATIONALITY": {"0001": {"label": "AFGHANISTAN", "version": "01"}, "0002": {"label": "ALBANIA", "version": "01"}, "0003": {"label": "ALGERIA", "version": "01"}, "0004": {"label": "AMERICAN SAMOA", "version": "01"}, "0005": {"label": "ANDORRA", "version": "01"}, "0006": {"label": "ANGOLA", "version": "01"}, "0007": {"label": "ANGUILLA", "version": "01"}, "0008": {"label": "ANTIGUA AND BARBUDA", "version": "01"}, "0009": {"label": "ARGENTINA", "version": "01"}, "0010": {"label": "ARMENIA", "version": "01"}, "0011": {"label": "ARUBA", "version": "01"}, "0012": {"label": "ASCENSION ISLAND", "version": "01"}, "0013": {"label": "AUSTRALIA", "version": "01"}, "0014": {"label": "AUSTRIA", "version": "01"}, "0015": {"label": "AZERBAIJAN", "version": "01"}, "0016": {"label": "BAHAMAS", "version": "01"}, "0017": {"label": "BAHRAIN", "version": "01"}, "0018": {"label": "BANGLADESH", "version": "01"}, "0019": {"label": "BARBADOS", "version": "01"}, "0020": {"label": "BELARUS", "version": "01"}, "0021": {"label": "BELGIUM", "version": "01"}, "0022": {"label": "BELIZE", "version": "01"}, "0023": {"label": "BENIN", "version": "01"}, "0024": {"label": "BERMUDA", "version": "01"}, "0025": {"label": "BHUTAN", "version": "01"}, "0026": {"label": "BOLIVIA, PLURINATIONAL STATE OF", "version": "01"}, "0027": {"label": "BOSNIA AND HERZEGOVINA", "version": "01"}, "0028": {"label": "BOTSWANA", "version": "01"}, "0029": {"label": "BRAZIL", "version": "01"}, "0030": {"label": "BRITISH INDIAN OCEAN TERRITORY", "version": "01"}, "0031": {"label": "BRUNEI DARUSSALAM", "version": "01"}, "0032": {"label": "BULGARIA", "version": "01"}, "0033": {"label": "BURKINA FASO", "version": "01"}, "0034": {"label": "BURMA", "version": "01"}, "0035": {"label": "BURUNDI", "version": "01"}, "0036": {"label": "CAMBODIA", "version": "01"}, "0037": {"label": "CAMEROON", "version": "01"}, "0038": {"label": "CANADA", "version": "01"}, "0039": {"label": "CAPE VERDE", "version": "01"}, "0040": {"label": "CAYMAN ISLANDS", "version": "01"}, "0041": {"label": "CENTRAL AFRICAN REPUBLIC", "version": "01"}, "0042": {"label": "CHAD", "version": "01"}, "0043": {"label": "CHILE", "version": "01"}, "0044": {"label": "CHINA", "version": "01"}, "0045": {"label": "COLOMBIA", "version": "01"}, "0046": {"label": "COMOROS", "version": "01"}, "0047": {"label": "CONGO", "version": "01"}, "0048": {"label": "CONGO, THE DEMOCRATIC REPUBLIC OF THE", "version": "01"}, "0049": {"label": "COOK ISLANDS", "version": "01"}, "0050": {"label": "COSTA RICA", "version": "01"}, "0051": {"label": "CÔTE D'IVOIRE", "version": "01"}, "0052": {"label": "CROATIA", "version": "01"}, "0053": {"label": "CUBA", "version": "01"}, "0054": {"label": "CYPRUS", "version": "01"}, "0055": {"label": "CZECH REPUBLIC", "version": "01"}, "0056": {"label": "DENMARK", "version": "01"}, "0057": {"label": "DIEGO GARCIA", "version": "01"}, "0058": {"label": "DJIBOUTI", "version": "01"}, "0059": {"label": "DOMINICA", "version": "01"}, "0060": {"label": "DOMINICAN REPUBLIC", "version": "01"}, "0061": {"label": "EAST TIMOR", "version": "01"}, "0062": {"label": "ECUADOR", "version": "01"}, "0063": {"label": "EGYPT", "version": "01"}, "0064": {"label": "EL SALVADOR", "version": "01"}, "0065": {"label": "EQUATORIAL GUINEA", "version": "01"}, "0066": {"label": "ERITREA", "version": "01"}, "0067": {"label": "ESTONIA", "version": "01"}, "0068": {"label": "ETHIOPIA", "version": "01"}, "0069": {"label": "FALKLAND ISLANDS (MALVINAS)", "version": "01"}, "0070": {"label": "FAROE ISLANDS", "version": "01"}, "0071": {"label": "FIJI", "version": "01"}, "0072": {"label": "FINLAND", "version": "01"}, "0073": {"label": "FRANCE", "version": "01"}, "0074": {"label": "FRENCH GUIANA", "version": "01"}, "0075": {"label": "FRENCH POLYNESIA", "version": "01"}, "0076": {"label": "FRENCH SOUTHERN TERRITORIES", "version": "01"}, "0077": {"label": "GABON", "version": "01"}, "0078": {"label": "GAMBIA", "version": "01"}, "0079": {"label": "GEORGIA", "version": "01"}, "0080": {"label": "GERMANY", "version": "01"}, "0081": {"label": "GHANA", "version": "01"}, "0082": {"label": "GREECE", "version": "01"}, "0083": {"label": "GRENADA", "version": "01"}, "0084": {"label": "GUAM", "version": "01"}, "0085": {"label": "GUATEMALA", "version": "01"}, "0086": {"label": "GUINEA", "version": "01"}, "0087": {"label": "GUINEA-BISSAU", "version": "01"}, "0088": {"label": "GUYANA", "version": "01"}, "0089": {"label": "HAITI", "version": "01"}, "0090": {"label": "HOLY SEE (VATICAN CITY STATE)", "version": "01"}, "0091": {"label": "HONDURAS", "version": "01"}, "0092": {"label": "HONG KONG", "version": "01"}, "0093": {"label": "HUNGARY", "version": "01"}, "0094": {"label": "ICELAND", "version": "01"}, "0095": {"label": "INDIA", "version": "01"}, "0096": {"label": "INDONESIA", "version": "01"}, "0097": {"label": "IRAN, ISLAMIC REPUBLIC OF", "version": "01"}, "0098": {"label": "IRAQ", "version": "01"}, "0099": {"label": "IRELAND", "version": "01"}, "0100": {"label": "ISLE OF MAN", "version": "01"}, "0101": {"label": "ISRAEL", "version": "01"}, "0102": {"label": "ITALY", "version": "01"}, "0103": {"label": "JAMAICA", "version": "01"}, "0104": {"label": "JAPAN", "version": "01"}, "0105": {"label": "JORDAN", "version": "01"}, "0106": {"label": "KAZAKHSTAN", "version": "01"}, "0107": {"label": "KENYA", "version": "01"}, "0108": {"label": "KIRIBATI", "version": "01"}, "0109": {"label": "KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF", "version": "01"}, "0110": {"label": "KOREA, REPUBLIC OF", "version": "01"}, "0111": {"label": "KUWAIT", "version": "01"}, "0112": {"label": "KYRGYZSTAN", "version": "01"}, "0113": {"label": "LAO PEOPLE'S DEMOCRATIC REPUBLIC", "version": "01"}, "0114": {"label": "LATVIA", "version": "01"}, "0115": {"label": "LEBANON", "version": "01"}, "0116": {"label": "LESOTHO", "version": "01"}, "0117": {"label": "LIBERIA", "version": "01"}, "0118": {"label": "LIBYA FEZZAN", "version": "01"}, "0119": {"label": "LIBYAN ARAB JAMAHIRIYA", "version": "01"}, "0120": {"label": "LIECHTENSTEIN", "version": "01"}, "0121": {"label": "LITHUANIA", "version": "01"}, "0122": {"label": "LUXEMBOURG", "version": "01"}, "0123": {"label": "MACAO", "version": "01"}, "0124": {"label": "MADAGASCAR", "version": "01"}, "0125": {"label": "MALAWI", "version": "01"}, "0126": {"label": "MALAYSIA", "version": "01"}, "0127": {"label": "MALDIVES", "version": "01"}, "0128": {"label": "MALI", "version": "01"}, "0129": {"label": "MALTA", "version": "01"}, "0130": {"label": "MARSHALL ISLANDS", "version": "01"}, "0131": {"label": "MAURITANIA", "version": "01"}, "0132": {"label": "MAURITIUS", "version": "01"}, "0133": {"label": "MEXICO", "version": "01"}, "0134": {"label": "MICRONESIA, FEDERATED STATES OF", "version": "01"}, "0135": {"label": "MOLDOVA, REPUBLIC OF", "version": "01"}, "0136": {"label": "MONACO", "version": "01"}, "0137": {"label": "MONGOLIA", "version": "01"}, "0138": {"label": "MONTENEGRO", "version": "01"}, "0139": {"label": "MONTSERRAT", "version": "01"}, "0140": {"label": "MOROCCO", "version": "01"}, "0141": {"label": "MOZAMBIQUE", "version": "01"}, "0142": {"label": "MYANMAR", "version": "01"}, "0143": {"label": "NAMIBIA", "version": "01"}, "0144": {"label": "NAURU", "version": "01"}, "0145": {"label": "NEPAL", "version": "01"}, "0146": {"label": "NETHERLANDS", "version": "01"}, "0147": {"label": "NETHERLANDS ANTILLES", "version": "01"}, "0148": {"label": "NEW CALEDONIA", "version": "01"}, "0149": {"label": "NEW ZEALAND", "version": "01"}, "0150": {"label": "NICARAGUA", "version": "01"}, "0151": {"label": "NIGER", "version": "01"}, "0152": {"label": "NIGERIA", "version": "01"}, "0153": {"label": "NIUE", "version": "01"}, "0154": {"label": "NORTHERN MARIANA ISLANDS", "version": "01"}, "0155": {"label": "NORWAY", "version": "01"}, "0156": {"label": "OMAN", "version": "01"}, "0157": {"label": "PAKISTAN", "version": "01"}, "0158": {"label": "PALAU", "version": "01"}, "0159": {"label": "PANAMA", "version": "01"}, "0160": {"label": "PAPUA NEW GUINEA", "version": "01"}, "0161": {"label": "PARAGUAY", "version": "01"}, "0162": {"label": "PERU", "version": "01"}, "0163": {"label": "PHILIPPINES", "version": "01"}, "0164": {"label": "POLAND", "version": "01"}, "0165": {"label": "PORTUGAL", "version": "01"}, "0166": {"label": "PUERTO RICO", "version": "01"}, "0167": {"label": "QATAR", "version": "01"}, "0168": {"label": "ROMANIA", "version": "01"}, "0169": {"label": "RUSSIAN FEDERATION", "version": "01"}, "0170": {"label": "RWANDA", "version": "01"}, "0171": {"label": "SAINT KITTS AND NEVIS", "version": "01"}, "0172": {"label": "SAINT LUCIA", "version": "01"}, "0173": {"label": "SAINT MARTIN", "version": "01"}, "0174": {"label": "SAINT VINCENT", "version": "01"}, "0175": {"label": "SAINT VINCENT AND THE GRENADINES", "version": "01"}, "0176": {"label": "SAMOA", "version": "01"}, "0177": {"label": "SAN MARINO", "version": "01"}, "0178": {"label": "SAO TOME AND PRINCIPE", "version": "01"}, "0179": {"label": "SAUDI ARABIA", "version": "01"}, "0180": {"label": "SENEGAL", "version": "01"}, "0181": {"label": "SERBIA", "version": "01"}, "0182": {"label": "SERBIA AND MONTENEGRO", "version": "01"}, "0183": {"label": "SEYCHELLES", "version": "01"}, "0184": {"label": "SIERRA LEONE", "version": "01"}, "0185": {"label": "SINGAPORE", "version": "01"}, "0186": {"label": "SLOVAKIA", "version": "01"}, "0187": {"label": "SLOVENIA", "version": "01"}, "0188": {"label": "SOLOMON ISLANDS", "version": "01"}, "0189": {"label": "SOMALIA", "version": "01"}, "0190": {"label": "SOUTH AFRICA", "version": "01"}, "0191": {"label": "SPAIN", "version": "01"}, "0192": {"label": "SRI LANKA", "version": "01"}, "0193": {"label": "SUDAN", "version": "01"}, "0194": {"label": "SURINAME", "version": "01"}, "0195": {"label": "SVALBARD AND JAN MAYEN", "version": "01"}, "0196": {"label": "SWAZILAND", "version": "01"}, "0197": {"label": "SWEDEN", "version": "01"}, "0198": {"label": "SWITZERLAND", "version": "01"}, "0199": {"label": "SYRIAN ARAB REPUBLIC", "version": "01"}, "0200": {"label": "TAJIKISTAN", "version": "01"}, "0201": {"label": "TANZANIA, UNITED REPUBLIC OF", "version": "01"}, "0202": {"label": "THAILAND", "version": "01"}, "0203": {"label": "TIMOR-LESTE", "version": "01"}, "0204": {"label": "TOGO", "version": "01"}, "0205": {"label": "TOKELAU", "version": "01"}, "0206": {"label": "TONGA", "version": "01"}, "0207": {"label": "TRINIDAD AND TOBAGO", "version": "01"}, "0208": {"label": "TUNISIA", "version": "01"}, "0209": {"label": "TURKEY", "version": "01"}, "0210": {"label": "TURKMENISTAN", "version": "01"}, "0211": {"label": "TURKS AND CAICOS ISLANDS", "version": "01"}, "0212": {"label": "TUVALU", "version": "01"}, "0213": {"label": "UGANDA", "version": "01"}, "0214": {"label": "UKRAINE", "version": "01"}, "0215": {"label": "UNITED ARAB EMIRATES", "version": "01"}, "0216": {"label": "UNITED KINGDOM", "version": "01"}, "0217": {"label": "UNITED STATES", "version": "01"}, "0218": {"label": "UNITED STATES MINOR OUTLYING ISLANDS", "version": "01"}, "0219": {"label": "URUGUAY", "version": "01"}, "0220": {"label": "UZBEKISTAN", "version": "01"}, "0221": {"label": "VANUATU", "version": "01"}, "0222": {"label": "VENEZUELA, BOLIVARIAN REPUBLIC OF", "version": "01"}, "0223": {"label": "VIRGIN ISLANDS, BRITISH", "version": "01"}, "0224": {"label": "VIRGIN ISLANDS, U.S.", "version": "01"}, "0225": {"label": "WESTERN SAHARA", "version": "01"}, "0226": {"label": "YEMEN", "version": "01"}, "0227": {"label": "ZAMBIA", "version": "01"}, "0228": {"label": "ZIMBABWE", "version": "01"}, "0229": {"label": "UNKNOWN", "version": "01"}, "0230": {"label": "GERMAN DEMOCRATIC REPUBLIC", "version": "01"}, "0231": {"label": "EAST TIMOR (TIMOR PORTUGUESE)", "version": "01"}, "0232": {"label": "FRENCH TERRITORY OF THE AFARS AND THE ISSAS", "version": "01"}, "0233": {"label": "NETHERLANDS ANTILLES (BEFORE ARUBA BROKE AWAY)", "version": "01"}, "0234": {"label": "SAINT KITTS-NEVIS-ANGUILLA", "version": "01"}, "0235": {"label": "YEMEN, DEMOCRATIC (SOUTH YEMEN)", "version": "01"}, "0236": {"label": "YEMEN ARAB REPUBLIC (NORTH YEMEN)", "version": "01"}, "0237": {"label": "SOCIALIST REPUBLIC OF VIETNAM", "version": "01"}, "0238": {"label": "PALESTINE", "version": "01"}, "0239": {"label": "PALESTINIAN NATIONALITY NOT RECOGNIZED BY ALL STATES", "version": "01"}, "0240": {"label": "SOUTH SUDAN", "version": "01"}, "0241": {"label": "KOSOVO", "version": "01"}, "0242": {"label": "NORTH MACEDONIA", "version": "01"}, "0243": {"label": "KINGDOM OF ESWATINI", "version": "01"}, "0244": {"label": "BRITISH OVERSEAS TERRITORIES CITIZEN (GIBRALTAR)", "version": "01"}, "0245": {"label": "STATELESS (1954 CONVENTION)", "version": "01"}, "0246": {"label": "OTHER", "version": "01"}}, "CT04_GENDER": {"0001": {"label": "Male", "version": "01"}, "0002": {"label": "Female", "version": "01"}, "0003": {"label": "Unspecified/Other", "version": "01"}, "9999": {"label": "Not Applicable", "version": "01"}}, "CT11_TRAVEL_DOCUMENT_TYPE": {"0001": {"label": "Ordinary passport", "version": "01"}, "0002": {"label": "Diplomatic passport", "version": "01"}, "0003": {"label": "Service passport", "version": "01"}, "0004": {"label": "Travel document (1951 convention)", "version": "01"}, "0005": {"label": "Alien’s passport", "version": "01"}, "0006": {"label": "Seaman’s passport", "version": "01"}, "0007": {"label": "Other travel document", "version": "01"}, "0008": {"label": "Official passport", "version": "01"}, "0009": {"label": "Special passport", "version": "01"}, "0010": {"label": "Group passport", "version": "01"}, "0011": {"label": "National laissez-passer", "version": "01"}, "0012": {"label": "United Nations laissez-passer", "version": "01"}, "0013": {"label": "Travel document (1954 Convention)", "version": "01"}}, "CT401_MEMBER_STATE_ACTOR": {"0000": {"label": "Austria", "version": "01"}, "0001": {"label": "Belgium", "version": "01"}, "0002": {"label": "Bulgaria", "version": "01"}, "0003": {"label": "Cyprus", "version": "01"}, "0004": {"label": "Croatia", "version": "01"}, "0005": {"label": "Czech Republic", "version": "01"}, "0006": {"label": "Denmark", "version": "01"}, "0007": {"label": "Estonia", "version": "01"}, "0008": {"label": "Finland", "version": "01"}, "0009": {"label": "France", "version": "01"}, "0010": {"label": "Germany", "version": "01"}, "0011": {"label": "Greece", "version": "01"}, "0012": {"label": "Hungary", "version": "01"}, "0013": {"label": "Iceland", "version": "01"}, "0014": {"label": "Ireland", "version": "01"}, "0015": {"label": "Italy", "version": "01"}, "0016": {"label": "Latvia", "version": "01"}, "0017": {"label": "Liechtenstein", "version": "01"}, "0018": {"label": "Lithuania", "version": "01"}, "0019": {"label": "Luxembourg", "version": "01"}, "0020": {"label": "Malta", "version": "01"}, "0021": {"label": "Netherlands", "version": "01"}, "0022": {"label": "Norway", "version": "01"}, "0023": {"label": "Romania", "version": "01"}, "0024": {"label": "Poland", "version": "01"}, "0025": {"label": "Portugal", "version": "01"}, "0026": {"label": "Slovakia", "version": "01"}, "0027": {"label": "Slovenia", "version": "01"}, "0028": {"label": "Spain", "version": "01"}, "0029": {"label": "Sweden", "version": "01"}, "0030": {"label": "Switzerland", "version": "01"}}, "CT402_MS_OF_ORIGIN_INSERT": {"0000": {"label": "AT", "version": "01"}, "0001": {"label": "BE", "version": "01"}, "0002": {"label": "BG", "version": "01"}, "0003": {"label": "CY", "version": "01"}, "0004": {"label": "HR", "version": "01"}, "0005": {"label": "CZ", "version": "01"}, "0006": {"label": "DK", "version": "01"}, "0007": {"label": "EE", "version": "01"}, "0008": {"label": "FI", "version": "01"}, "0009": {"label": "FR", "version": "01"}, "0010": {"label": "DE", "version": "01"}, "0011": {"label": "GR", "version": "01"}, "0012": {"label": "HU", "version": "01"}, "0013": {"label": "IS", "version": "01"}, "0014": {"label": "IE", "version": "01"}, "0015": {"label": "IT", "version": "01"}, "0016": {"label": "LV", "version": "01"}, "0017": {"label": "LI", "version": "01"}, "0018": {"label": "LT", "version": "01"}, "0019": {"label": "LU", "version": "01"}, "0020": {"label": "MT", "version": "01"}, "0021": {"label": "NL", "version": "01"}, "0022": {"label": "NO", "version": "01"}, "0023": {"label": "RO", "version": "01"}, "0024": {"label": "PL", "version": "01"}, "0025": {"label": "PT", "version": "01"}, "0026": {"label": "SK", "version": "01"}, "0027": {"label": "SI", "version": "01"}, "0028": {"label": "ES", "version": "01"}, "0029": {"label": "SE", "version": "01"}, "0030": {"label": "CH", "version": "01"}}, "CT450_TAKE_CHARGE_LEGAL_BASE": {"0001": {"label": "Article 25 of Regulation (EU) 2024/1351: unaccompanied minor", "version": "01"}, "0002": {"label": "Article 26 of Regulation (EU) 2024/1351: family members who legally reside in a Member State If this field is selected, written consent of the person concerned should be attached to the form.", "version": "01"}, "0003": {"label": "Article 27 of Regulation (EU) 2024/1351: family members who are applicants for international protection", "version": "01"}, "0004": {"label": "Article 28 of Regulation (EU) 2024/1351: family procedure", "version": "01"}, "0005": {"label": "Article 29(1) of Regulation (EU) 2024/1351: valid residence document", "version": "01"}, "0006": {"label": "Article 29(2) of Regulation (EU) 2024/1351: valid visa", "version": "01"}, "0007": {"label": "Article 29(4) of Regulation (EU) 2024/1351: expired, annulled, revoked or withdrawn residence document", "version": "01"}, "0008": {"label": "Article 29(4) of Regulation (EU) 2024/1351: expired, annulled, revoked or withdrawn visa", "version": "01"}, "0009": {"label": "Article 30 Regulation (EU) 2024/1351: diplomas or other qualifications", "version": "01"}, "0010": {"label": "Article 31 Regulation (EU) 2024/1351: visa-waived entry", "version": "01"}, "0011": {"label": "Article 32 Regulation (EU) 2024/1351: application in an international transit area of an airport", "version": "01"}, "0012": {"label": "Article 33(1) Regulation (EU) 2024/1351: entry", "version": "01"}, "0013": {"label": "Article 33(2) Regulation (EU) 2024/1351: Disembarkation following a search and rescue operation", "version": "01"}, "0014": {"label": "Article 34 Regulation (EU) 2024/1351: dependent persons", "version": "01"}, "0015": {"label": "Article 35(2) Regulation (EU) 2024/1351: discretionary clauses", "version": "01"}}, "CT451_TAKE_BACK_LEGAL_BASE": {"0001": {"label": "Article 36(1), point (b), of Regulation (EU) 2024/1351", "version": "01"}, "0002": {"label": "Article 36(1), point (c), of Regulation (EU) 2024/1351", "version": "01"}, "0003": {"label": "Article 38(4), first subparagraph of Regulation (EU) 2024/1351", "version": "01"}, "0004": {"label": "Article 38(5) of Regulation (EU) 2024/1351", "version": "01"}, "0006": {"label": "Article 12(6) of this Regulation", "version": "01"}, "0005": {"label": "Article 13 of this Regulation", "version": "01"}}, "CT458_MARITAL_STATUS": {"0001": {"label": "Single", "version": "01"}, "0002": {"label": "Married", "version": "01"}, "0003": {"label": "Widowed", "version": "01"}, "0004": {"label": "Divorced", "version": "01"}, "0005": {"label": "Separated", "version": "01"}, "0006": {"label": "Unmarried partner in stable relationship", "version": "01"}}, "CT459_BECOME_RESPONSIBLE_REASON": {"0001": {"label": "The transfer has not been carried out within\nthe time limit set out in Article 46(1) of Regulation (EU) 2024/1351", "version": "01"}, "0002": {"label": "The transfer has not been carried out within the time limits set out in Article 46 (2) of Regulation (EU) 2024/1351", "version": "01"}, "0003": {"label": "The transfer cannot be carried out pursuant to Article 16(3) of\nRegulation (EU) 2024/1351 and no other Member State can be designated as responsible", "version": "01"}, "0004": {"label": "The transfer is not in the best interest of the child (Article 25(5) of Regulation (EU) 2024/1351)", "version": "01"}, "0005": {"label": "The transfer decision was challenged in accordance with Article 43 of Regulation (EU) 2024/1351 and the appeal was successful", "version": "01"}, "0006": {"label": "Discretionary clause under Article 35 of Regulation (EU) 2024/1351 was applied by the requesting Member State", "version": "01"}, "0007": {"label": "A residence document was issued to the person by the requesting Member State", "version": "01"}}, "CT460_FAMILY_RELATION": {"0001": {"label": "Spouse", "version": "01"}, "0002": {"label": "Unmarried partner in a stable relationship", "version": "01"}, "0003": {"label": "Minor unmarried child", "version": "01"}, "0004": {"label": "Father, mother or another adult responsible for the applicant", "version": "01"}, "0005": {"label": "Father, mother or another adult responsible for that beneficiary", "version": "01"}}};
+
     const state = { docxReady: false, selectedFile: null, xmlDoc: null, xmlText: '', stats: null, detectedFormat: '—' };
     const el = {
       fileInput: document.getElementById('xmlFile'),
@@ -196,8 +177,8 @@
       fileMeta: document.getElementById('fileMeta'),
       reportTitle: document.getElementById('reportTitle'),
       outputName: document.getElementById('outputName'),
-      includeAttributes: document.getElementById('includeAttributes'),
       includeStats: document.getElementById('includeStats'),
+      includeTech: document.getElementById('includeTech'),
       includeRawXml: document.getElementById('includeRawXml'),
       previewBtn: document.getElementById('previewBtn'),
       convertBtn: document.getElementById('convertBtn'),
@@ -212,227 +193,146 @@
       statDepth: document.getElementById('statDepth')
     };
 
-    const SEX_CODE_MAP = {
-      '0000': 'Not known',
-      '0001': 'Male',
-      '0002': 'Female',
-      '0009': 'Not applicable',
-      '0': 'Not known',
-      '1': 'Male',
-      '2': 'Female',
-      '9': 'Not applicable'
-    };
-
-    const COUNTRY_NUMERIC_MAP = {
-      '004': 'Afghanistan', '008': 'Albania', '012': 'Algeria', '024': 'Angola', '031': 'Azerbaijan',
-      '032': 'Argentina', '036': 'Australia', '040': 'Austria', '050': 'Bangladesh', '051': 'Armenia',
-      '056': 'Belgium', '070': 'Bosnia and Herzegovina', '100': 'Bulgaria', '112': 'Belarus', '144': 'Sri Lanka',
-      '191': 'Croatia', '196': 'Cyprus', '203': 'Czechia', '208': 'Denmark', '218': 'Ecuador',
-      '231': 'Ethiopia', '232': 'Eritrea', '233': 'Estonia', '246': 'Finland', '250': 'France',
-      '268': 'Georgia', '276': 'Germany', '300': 'Greece', '348': 'Hungary', '352': 'Iceland',
-      '356': 'India', '364': 'Iran', '368': 'Iraq', '372': 'Ireland', '376': 'Israel',
-      '380': 'Italy', '400': 'Jordan', '422': 'Lebanon', '428': 'Latvia', '434': 'Libya',
-      '440': 'Lithuania', '442': 'Luxembourg', '470': 'Malta', '504': 'Morocco', '528': 'Netherlands',
-      '578': 'Norway', '586': 'Pakistan', '616': 'Poland', '620': 'Portugal', '642': 'Romania',
-      '643': 'Russia', '682': 'Saudi Arabia', '703': 'Slovakia', '705': 'Slovenia', '706': 'Somalia',
-      '724': 'Spain', '729': 'Sudan', '752': 'Sweden', '756': 'Switzerland', '760': 'Syria',
-      '788': 'Tunisia', '792': 'Turkey', '804': 'Ukraine', '818': 'Egypt', '826': 'United Kingdom',
-      '840': 'United States', '860': 'Uzbekistan'
-    };
-
-    function showStatus(message, type = 'info') {
-      el.status.className = `status show ${type}`;
-      el.status.textContent = message;
-    }
+    function showStatus(message, type = 'info') { el.status.className = `status show ${type}`; el.status.textContent = message; }
     function clearStatus() { el.status.className = 'status'; el.status.textContent = ''; }
     function setLibStatus(text) { el.statLib.textContent = text; }
-    function updateButtons() {
-      el.previewBtn.disabled = !state.xmlDoc;
-      el.convertBtn.disabled = !(state.docxReady && state.xmlDoc);
-    }
-    function formatBytes(bytes) {
-      if (bytes === 0) return '0 B';
-      if (!bytes) return '—';
-      const units = ['B','KB','MB','GB'];
-      const i = Math.floor(Math.log(bytes) / Math.log(1024));
-      return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`;
-    }
+    function updateButtons() { el.previewBtn.disabled = !state.xmlDoc; el.convertBtn.disabled = !(state.docxReady && state.xmlDoc); }
+    function formatBytes(bytes) { if (bytes === 0) return '0 B'; if (!bytes) return '—'; const units = ['B','KB','MB','GB']; const i = Math.floor(Math.log(bytes) / Math.log(1024)); return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`; }
     function baseName(filename) { return filename.replace(/\.[^/.]+$/, ''); }
-    function sanitizeFileName(name) { return name.replace(/[<>:"/\\|?*]+/g, '').trim(); }
-    function isXmlFile(file) {
-      return !!file && (file.name.toLowerCase().endsWith('.xml') || file.type === 'text/xml' || file.type === 'application/xml');
-    }
-    function directChild(node, name) {
-      if (!node) return null;
-      return Array.from(node.children).find(child => child.nodeName === name) || null;
-    }
-    function nestedChild(node, path) {
-      let current = node;
-      for (const step of path) {
-        current = directChild(current, step);
-        if (!current) return null;
-      }
-      return current;
-    }
-    function getDirectText(node) {
-      if (!node) return '';
-      return Array.from(node.childNodes)
-        .filter(n => n.nodeType === Node.TEXT_NODE)
-        .map(n => (n.textContent || '').trim())
-        .filter(Boolean)
-        .join(' ');
-    }
-    function cleanValue(value) {
-      const raw = (value ?? '').toString().trim();
-      if (!raw || raw === '----') return 'Not provided';
-      if (raw === 'true') return 'Yes';
-      if (raw === 'false') return 'No';
-      return raw;
-    }
-    function pad3(value) {
-      const digits = String(value || '').replace(/\D/g, '');
-      if (!digits) return '';
-      return digits.slice(-3).padStart(3, '0');
-    }
-    function mapSexCode(code) {
-      const normalized = String(code || '').trim();
-      const mapped = SEX_CODE_MAP[normalized];
-      return mapped ? `${mapped} [${normalized}]` : normalized || 'Not provided';
-    }
-    function mapCountryNumeric(code) {
-      const key = pad3(code);
-      const mapped = COUNTRY_NUMERIC_MAP[key];
-      return mapped ? `${mapped} [${key}]` : String(code || '').trim() || 'Not provided';
-    }
-    function mapCodeByField(fieldName, code) {
+    function sanitizeFileName(name) { return name.replace(/[<>:"/\|?*]+/g, '').trim(); }
+    function isXmlFile(file) { return !!file && (file.name.toLowerCase().endsWith('.xml') || file.type === 'text/xml' || file.type === 'application/xml'); }
+    function directChild(node, name) { if (!node) return null; return Array.from(node.children).find(child => child.nodeName === name) || null; }
+    function nestedChild(node, path) { let current = node; for (const step of path) { current = directChild(current, step); if (!current) return null; } return current; }
+    function getDirectText(node) { if (!node) return ''; return Array.from(node.childNodes).filter(n => n.nodeType === Node.TEXT_NODE).map(n => (n.textContent || '').trim()).filter(Boolean).join(' '); }
+    function cleanValue(value) { const raw = (value ?? '').toString().trim(); if (!raw || raw === '----') return 'Not provided'; if (raw === 'true') return 'Yes'; if (raw === 'false') return 'No'; return raw; }
+    function padCode(value, len = 4) { const s = String(value ?? '').trim(); if (!s) return ''; if (/^\d+$/.test(s)) return s.padStart(len, '0'); return s; }
+    function exactMap(tableName, code) { const normalized = padCode(code, 4); const table = CODE_TABLES[tableName] || {}; return table[normalized]?.label || null; }
+    function exactMapWithVersion(tableName, code, version) { const label = exactMap(tableName, code); const normalizedCode = padCode(code, 4) || cleanValue(code); const versionText = cleanValue(version); if (!label) return normalizedCode; if (versionText === 'Not provided') return `${label} [${normalizedCode}]`; return `${label} [${normalizedCode} v${versionText}]`; }
+
+    function mapDublinetCode(fieldName, code, version) {
       const normalized = cleanValue(code);
       if (normalized === 'Not provided') return normalized;
-      if (fieldName === 'Sex') return mapSexCode(normalized);
-      if (fieldName === 'Nationality') return mapCountryNumeric(normalized);
-      return normalized;
+      if (fieldName === 'Sex') return exactMapWithVersion('CT04_GENDER', normalized, version);
+      if (fieldName === 'Nationality') return exactMapWithVersion('CT02_NATIONALITY', normalized, version);
+      if (fieldName === 'MaritalStatus') return exactMapWithVersion('CT458_MARITAL_STATUS', normalized, version);
+      if (fieldName === 'TakeChargeRequestBasedOn') return exactMapWithVersion('CT450_TAKE_CHARGE_LEGAL_BASE', normalized, version);
+      if (fieldName === 'TakeBackLegalBase') return exactMapWithVersion('CT451_TAKE_BACK_LEGAL_BASE', normalized, version);
+      if (fieldName === 'FamilyRelation') return exactMapWithVersion('CT460_FAMILY_RELATION', normalized, version);
+      if (fieldName === 'BecomeResponsibleReason') return exactMapWithVersion('CT459_BECOME_RESPONSIBLE_REASON', normalized, version);
+      if (fieldName === 'RequestingMemberState' || fieldName === 'RequestedMemberState') {
+        const match = exactMap('CT401_MEMBER_STATE_ACTOR', normalized) || exactMap('CT402_MS_OF_ORIGIN_INSERT', normalized);
+        return match ? `${match} [${padCode(normalized,4)}]` : cleanValue(normalized);
+      }
+      return cleanValue(normalized);
     }
-    function codeVersionValue(fieldName, node) {
-      if (!node) return 'Not provided';
-      const rawCode = getDirectText(directChild(node, 'Code'));
-      const rawVersion = getDirectText(directChild(node, 'Version'));
-      const code = mapCodeByField(fieldName, rawCode);
-      const version = cleanValue(rawVersion);
-      if (code === 'Not provided' && version === 'Not provided') return 'Not provided';
-      if (version === 'Not provided') return code;
-      return `${code} (version ${version})`;
-    }
+
     function smartValue(fieldName, node) {
       if (!node) return 'Not provided';
-      if (directChild(node, 'Code') || directChild(node, 'Version')) return codeVersionValue(fieldName, node);
+      const codeNode = directChild(node, 'Code');
+      const versionNode = directChild(node, 'Version');
+      if (codeNode || versionNode) return mapDublinetCode(fieldName, getDirectText(codeNode), getDirectText(versionNode));
       return cleanValue(getDirectText(node));
     }
+
     function analyzeXml(root) {
       let totalElements = 0, totalAttributes = 0, maxDepth = 0;
       function walk(node, depth = 0) {
-        totalElements++;
-        totalAttributes += node.attributes ? node.attributes.length : 0;
-        if (depth > maxDepth) maxDepth = depth;
+        totalElements++; totalAttributes += node.attributes ? node.attributes.length : 0; if (depth > maxDepth) maxDepth = depth;
         Array.from(node.children).forEach(child => walk(child, depth + 1));
       }
       walk(root);
       return { rootName: root.nodeName, totalElements, totalAttributes, maxDepth };
     }
-    function detectFormat(root) {
-      if (!root) return 'Unknown XML';
-      if (root.nodeName === 'TakeChargeRequestForm') return 'Dublinet TakeChargeRequestForm';
-      return 'Generic XML';
+    function detectFormat(root) { if (!root) return 'Unknown XML'; if (root.nodeName === 'TakeChargeRequestForm') return 'DubliNet TakeChargeRequestForm'; return 'Generic XML'; }
+
+    function extractDublinetAnnexII(xmlDoc) {
+      const root = xmlDoc.documentElement;
+      const partI = directChild(root, 'PartI');
+      const applicant = directChild(partI, 'ApplicantInformation');
+      const signature = directChild(partI, 'ds:Signature');
+      const signProps = nestedChild(partI, ['ds:Signature','ds:Object','xades:QualifyingProperties','xades:SignedProperties','xades:SignedSignatureProperties']);
+
+      const attachmentNode = directChild(applicant, 'TemplateUnderArticle22_1_Attachment_0003');
+      const attachmentPresent = attachmentNode && (attachmentNode.children.length > 0 || getDirectText(attachmentNode) || attachmentNode.attributes?.length) ? 'Attached' : 'No file attached';
+
+      return {
+        personalBusinessData: [
+          ['Date of Application Registration *', smartValue('DateOfApplicationRegistration', directChild(applicant, 'DateOfApplicationRegistration'))],
+          ['Requesting MS file number', smartValue('RequestingMSFileNumber', directChild(applicant, 'RequestingMSFileNumber'))],
+          ['Eurodac number of the requesting Member State *', smartValue('RequestingMSEurodacNumber', directChild(applicant, 'RequestingMSEurodacNumber'))],
+          ['Eurodac number of the requested Member State *', smartValue('RequestedMSEurodacNumber', directChild(applicant, 'RequestedMSEurodacNumber'))],
+          ['Surname *', smartValue('Surname', directChild(applicant, 'Surname'))],
+          ['Forename *', smartValue('Forename', directChild(applicant, 'Forename'))],
+          ['Name at birth', smartValue('NameAtBirth', directChild(applicant, 'NameAtBirth'))],
+          ['Aliases', smartValue('Aliases', directChild(applicant, 'Aliases'))],
+          ['Sex *', smartValue('Sex', directChild(applicant, 'Sex'))],
+          ['Nationality *', smartValue('Nationality', directChild(applicant, 'Nationality'))],
+          ['Date of Birth *', smartValue('DateOfBirth', directChild(applicant, 'DateOfBirth'))],
+          ['Place of Birth *', smartValue('PlaceOfBirth', directChild(applicant, 'PlaceOfBirth'))],
+          ['Marital Status *', smartValue('MaritalStatus', directChild(applicant, 'MaritalStatus'))],
+          ['ID or Travel Document', smartValue('IDTravelDocument', directChild(applicant, 'IDTravelDocument'))]
+        ],
+        requestBasedOn: [
+          ['Take Charge Request Based On *', smartValue('TakeChargeRequestBasedOn', directChild(applicant, 'TakeChargeRequestBasedOn'))],
+          ['Template provided for in Article 22(1)', smartValue('TemplateUnderArticle22_1_0003', directChild(applicant, 'TemplateUnderArticle22_1_0003'))],
+          ['Attachment', attachmentPresent],
+          ['Other Relevant Information Available', smartValue('OtherRelevantInformationAvailable_0003', directChild(applicant, 'OtherRelevantInformationAvailable_0003'))],
+          ['Proof of family presence at the requested Member State', smartValue('ProofOfFamilyPresence_0003', directChild(applicant, 'ProofOfFamilyPresence_0003'))],
+          ['Circumstantial evidence of family presence at the requested Member State', smartValue('CircumstantialEvidenceOfFamilyPresence_0003', directChild(applicant, 'CircumstantialEvidenceOfFamilyPresence_0003'))],
+          ['Proof of relationship', smartValue('ProofOfRelationship_0003', directChild(applicant, 'ProofOfRelationship_0003'))],
+          ['Circumstantial evidence of relationship', smartValue('CircumstantialEvidenceOfRelationship_0003', directChild(applicant, 'CircumstantialEvidenceOfRelationship_0003'))]
+        ],
+        urgentAndProcedure: [
+          ['Request for Urgent Reply', smartValue('RequestForUrgentReply', directChild(applicant, 'RequestForUrgentReply'))],
+          ['Application Mandatorily Examined under Asylum Border Procedure', smartValue('AsylumBorderProcedure', directChild(applicant, 'AsylumBorderProcedure'))],
+          ['The applicant is detained', smartValue('ApplicantIsDetained', directChild(applicant, 'ApplicantIsDetained'))]
+        ],
+        transmissionSummary: [
+          ['Linked case available', smartValue('LinkedCaseAvailable', nestedChild(partI, ['LinkedCase','Available']))],
+          ['Total number of persons covered', smartValue('TotalNumberOfPersonsCovered', directChild(partI, 'TotalNumberOfPersonsCovered'))],
+          ['Requesting Member State', smartValue('RequestingMemberState', directChild(partI, 'RequestingMemberState'))],
+          ['Requested Member State', smartValue('RequestedMemberState', directChild(partI, 'RequestedMemberState'))],
+          ['Signature present', signature ? 'Yes' : 'No'],
+          ['Signing time', smartValue('SigningTime', nestedChild(signProps, ['xades:SigningTime']))],
+          ['Signature production country', smartValue('CountryName', nestedChild(signProps, ['xades:SignatureProductionPlace','xades:CountryName']))]
+        ]
+      };
     }
+
     function buildGenericPreview(node, level = 0) {
       const indent = '  '.repeat(level);
-      const attrText = el.includeAttributes.checked && node.attributes?.length
-        ? ' ' + Array.from(node.attributes).map(a => `${a.name}="${a.value}"`).join(' ')
-        : '';
       const directText = getDirectText(node);
-      let line = `${indent}<${node.nodeName}${attrText}>`;
+      let line = `${indent}<${node.nodeName}>`;
       if (directText) line += ` ${cleanValue(directText)}`;
       const lines = [line];
       Array.from(node.children).forEach(child => lines.push(buildGenericPreview(child, level + 1)));
       return lines.join('\n');
     }
-    function extractDublinetData(xmlDoc) {
-      const root = xmlDoc.documentElement;
-      const partI = directChild(root, 'PartI');
-      const applicant = directChild(partI, 'ApplicantInformation');
-      const signatureObj = nestedChild(partI, ['ds:Signature','ds:Object','xades:QualifyingProperties','xades:SignedProperties','xades:SignedSignatureProperties']);
-      return {
-        overview: [
-          ['Date of application registration', smartValue('DateOfApplicationRegistration', directChild(applicant, 'DateOfApplicationRegistration'))],
-          ['Requesting MS file number', smartValue('RequestingMSFileNumber', directChild(applicant, 'RequestingMSFileNumber'))],
-          ['Requesting MS Eurodac number', smartValue('RequestingMSEurodacNumber', directChild(applicant, 'RequestingMSEurodacNumber'))],
-          ['Requested MS Eurodac number', smartValue('RequestedMSEurodacNumber', directChild(applicant, 'RequestedMSEurodacNumber'))],
-          ['Linked case available', smartValue('Available', nestedChild(partI, ['LinkedCase','Available']))],
-          ['Total persons covered', smartValue('TotalNumberOfPersonsCovered', directChild(partI, 'TotalNumberOfPersonsCovered'))],
-          ['Requesting Member State', smartValue('RequestingMemberState', directChild(partI, 'RequestingMemberState'))],
-          ['Requested Member State', smartValue('RequestedMemberState', directChild(partI, 'RequestedMemberState'))]
-        ],
-        applicant: [
-          ['Surname', smartValue('Surname', directChild(applicant, 'Surname'))],
-          ['Forename', smartValue('Forename', directChild(applicant, 'Forename'))],
-          ['Name at birth', smartValue('NameAtBirth', directChild(applicant, 'NameAtBirth'))],
-          ['Aliases', smartValue('Aliases', directChild(applicant, 'Aliases'))],
-          ['Date of birth', smartValue('DateOfBirth', directChild(applicant, 'DateOfBirth'))],
-          ['Place of birth', smartValue('PlaceOfBirth', directChild(applicant, 'PlaceOfBirth'))],
-          ['Sex', smartValue('Sex', directChild(applicant, 'Sex'))],
-          ['Nationality', smartValue('Nationality', directChild(applicant, 'Nationality'))],
-          ['Marital status', smartValue('MaritalStatus', directChild(applicant, 'MaritalStatus'))]
-        ],
-        legal: [
-          ['Take-charge request based on', smartValue('TakeChargeRequestBasedOn', directChild(applicant, 'TakeChargeRequestBasedOn'))],
-          ['Template under Article 22(1)', smartValue('TemplateUnderArticle22_1_0003', directChild(applicant, 'TemplateUnderArticle22_1_0003'))],
-          ['Template attachment details', smartValue('TemplateUnderArticle22_1_Attachment_0003', directChild(applicant, 'TemplateUnderArticle22_1_Attachment_0003'))],
-          ['Other relevant information available', smartValue('OtherRelevantInformationAvailable_0003', directChild(applicant, 'OtherRelevantInformationAvailable_0003'))],
-          ['Proof of family presence', smartValue('ProofOfFamilyPresence_0003', directChild(applicant, 'ProofOfFamilyPresence_0003'))],
-          ['Circumstantial evidence of family presence', smartValue('CircumstantialEvidenceOfFamilyPresence_0003', directChild(applicant, 'CircumstantialEvidenceOfFamilyPresence_0003'))],
-          ['Proof of relationship', smartValue('ProofOfRelationship_0003', directChild(applicant, 'ProofOfRelationship_0003'))],
-          ['Circumstantial evidence of relationship', smartValue('CircumstantialEvidenceOfRelationship_0003', directChild(applicant, 'CircumstantialEvidenceOfRelationship_0003'))]
-        ],
-        admin: [
-          ['ID / travel document available', smartValue('IDTravelDocument', directChild(applicant, 'IDTravelDocument'))],
-          ['Request for urgent reply', smartValue('RequestForUrgentReply', directChild(applicant, 'RequestForUrgentReply'))],
-          ['Asylum border procedure', smartValue('AsylumBorderProcedure', directChild(applicant, 'AsylumBorderProcedure'))],
-          ['Applicant is detained', smartValue('ApplicantIsDetained', directChild(applicant, 'ApplicantIsDetained'))]
-        ],
-        signature: [
-          ['Signature present', directChild(partI, 'ds:Signature') ? 'Yes' : 'No'],
-          ['Signing time', smartValue('SigningTime', nestedChild(signatureObj, ['xades:SigningTime']))],
-          ['Signature production country', smartValue('CountryName', nestedChild(signatureObj, ['xades:SignatureProductionPlace','xades:CountryName']))]
-        ]
-      };
-    }
-    function buildDublinetPreview(data) {
-      const renderSection = (title, rows) => {
-        const lines = [title];
-        rows.forEach(([label, value]) => lines.push(`- ${label}: ${value}`));
-        return lines.join('\n');
-      };
+
+    function buildAnnexPreview(data) {
+      const section = (title, rows) => [title, ...rows.map(([label, value]) => `- ${label}: ${value}`)].join('\n');
       return [
-        '[Dublinet TakeChargeRequestForm detected]',
+        'Standard form for the submission of a take charge request',
+        'ANNEX II',
         '',
-        renderSection('Request Overview', data.overview),
+        section('Personal and business data', data.personalBusinessData),
         '',
-        renderSection('Applicant Details', data.applicant),
+        section('Request based on', data.requestBasedOn),
         '',
-        renderSection('Legal Basis & Evidence', data.legal),
+        section('Urgent reply / procedure', data.urgentAndProcedure),
         '',
-        renderSection('Administrative Status', data.admin),
-        '',
-        renderSection('Signature Summary', data.signature)
+        section('Transmission summary', data.transmissionSummary)
       ].join('\n');
     }
+
     async function parseXmlFile(file) {
       const text = await file.text();
       const parser = new DOMParser();
       const parsed = parser.parseFromString(text, 'application/xml');
-      if (parsed.getElementsByTagName('parsererror').length) {
-        throw new Error('The uploaded file is not valid XML.');
-      }
+      if (parsed.getElementsByTagName('parsererror').length) throw new Error('The uploaded file is not valid XML.');
       return { text, parsed };
     }
+
     async function loadSelectedFile(file) {
       clearStatus();
       if (!isXmlFile(file)) {
@@ -440,131 +340,74 @@
         el.fileMeta.textContent = 'No valid XML file selected';
         el.preview.textContent = 'Please upload a valid XML file.';
         el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
-        updateButtons();
-        showStatus('Please select a valid .xml file.', 'error');
-        return;
+        updateButtons(); showStatus('Please select a valid .xml file.', 'error'); return;
       }
       try {
         el.preview.textContent = 'Reading and validating XML…';
         const { text, parsed } = await parseXmlFile(file);
-        state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement);
-        state.detectedFormat = detectFormat(parsed.documentElement);
+        state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement); state.detectedFormat = detectFormat(parsed.documentElement);
         el.fileMeta.innerHTML = `<strong>${file.name}</strong> · ${formatBytes(file.size)}`;
-        if (!el.reportTitle.value.trim()) {
-          el.reportTitle.value = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? 'Dublinet Take Charge Request Report' : `${state.stats.rootName} XML Report`;
-        }
-        el.outputName.value = `${baseName(file.name)}-report.docx`;
-        el.statFormat.textContent = state.detectedFormat;
-        el.statRoot.textContent = state.stats.rootName;
-        el.statElements.textContent = state.stats.totalElements;
-        el.statAttributes.textContent = state.stats.totalAttributes;
-        el.statDepth.textContent = state.stats.maxDepth;
-        el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm'
-          ? buildDublinetPreview(extractDublinetData(parsed))
-          : buildGenericPreview(parsed.documentElement);
+        if (!el.reportTitle.value.trim()) el.reportTitle.value = 'Standard form for the submission of a take charge request';
+        el.outputName.value = `${baseName(file.name)}-annex-ii-report.docx`;
+        el.statFormat.textContent = state.detectedFormat; el.statRoot.textContent = state.stats.rootName; el.statElements.textContent = state.stats.totalElements; el.statAttributes.textContent = state.stats.totalAttributes; el.statDepth.textContent = state.stats.maxDepth;
+        el.preview.textContent = state.detectedFormat === 'DubliNet TakeChargeRequestForm' ? buildAnnexPreview(extractDublinetAnnexII(parsed)) : buildGenericPreview(parsed.documentElement);
         updateButtons();
         showStatus(state.docxReady ? 'XML loaded successfully. You can now generate the DOCX report.' : 'XML loaded successfully, but the DOCX library is still loading.', state.docxReady ? 'success' : 'warning');
       } catch (err) {
         state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
-        el.fileMeta.textContent = 'No valid XML file selected';
-        el.preview.textContent = 'Upload a valid XML file to preview its structure.';
+        el.fileMeta.textContent = 'No valid XML file selected'; el.preview.textContent = 'Upload a valid XML file to preview its structure.';
         el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
-        updateButtons();
-        showStatus(err.message || 'Failed to parse XML.', 'error');
+        updateButtons(); showStatus(err.message || 'Failed to parse XML.', 'error');
       }
     }
+
     function resetAll() {
       state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
       el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = '';
-      el.includeAttributes.checked = false; el.includeStats.checked = true; el.includeRawXml.checked = false;
+      el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false;
       el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
       el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…';
       clearStatus(); updateButtons();
     }
-    function loadScript(src) {
-      return new Promise((resolve, reject) => {
-        const script = document.createElement('script');
-        script.src = src; script.async = true;
-        script.onload = () => resolve(src);
-        script.onerror = () => reject(new Error(`Failed to load ${src}`));
-        document.head.appendChild(script);
-      });
-    }
+
+    function loadScript(src) { return new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.async = true; script.onload = () => resolve(src); script.onerror = () => reject(new Error(`Failed to load ${src}`)); document.head.appendChild(script); }); }
     async function ensureDocxLoaded() {
-      const sources = [
-        'https://cdn.jsdelivr.net/npm/docx@8.2.1/build/index.umd.js',
-        'https://unpkg.com/docx@8.2.1/build/index.umd.js'
-      ];
-      for (const src of sources) {
-        try {
-          setLibStatus('Loading…');
-          await loadScript(src);
-          if (window.docx) { state.docxReady = true; setLibStatus('Ready'); return; }
-        } catch (e) {}
-      }
-      state.docxReady = false; setLibStatus('Blocked');
-      throw new Error('DOCX library failed to load from all sources.');
+      const sources = ['https://cdn.jsdelivr.net/npm/docx@8.2.1/build/index.umd.js','https://unpkg.com/docx@8.2.1/build/index.umd.js'];
+      for (const src of sources) { try { setLibStatus('Loading…'); await loadScript(src); if (window.docx) { state.docxReady = true; setLibStatus('Ready'); return; } } catch (e) {} }
+      state.docxReady = false; setLibStatus('Blocked'); throw new Error('DOCX library failed to load from all sources.');
     }
-    function createSummaryTable(docxLib, rows) {
+
+    function createSummaryTable(docxLib, rows, labelWidth = 36) {
       const { Table, TableRow, TableCell, Paragraph, WidthType, BorderStyle, TextRun } = docxLib;
       const makeCell = (text, bold = false, width = 50, fill = null) => new TableCell({
         width: { size: width, type: WidthType.PERCENTAGE },
         shading: fill ? { fill } : undefined,
-        borders: {
-          top: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
-          bottom: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
-          left: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' },
-          right: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' }
-        },
+        borders: { top: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' }, bottom: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' }, left: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' }, right: { style: BorderStyle.SINGLE, size: 1, color: 'D1D5DB' } },
         children: [new Paragraph({ children: [new TextRun({ text: String(text ?? '—'), bold })] })]
       });
-      return new Table({
-        width: { size: 100, type: WidthType.PERCENTAGE },
-        rows: rows.map(([label, value]) => new TableRow({ children: [makeCell(label, true, 35, 'F8FAFC'), makeCell(value, false, 65)] }))
-      });
+      return new Table({ width: { size: 100, type: WidthType.PERCENTAGE }, rows: rows.map(([label, value]) => new TableRow({ children: [makeCell(label, true, labelWidth, 'F8FAFC'), makeCell(value, false, 100 - labelWidth)] })) });
     }
-    function genericBlocks(node, level = 0, path = '') {
-      const { Paragraph, TextRun, HeadingLevel } = window.docx;
-      const blocks = [];
-      const currentPath = path ? `${path} / ${node.nodeName}` : node.nodeName;
-      const directText = cleanValue(getDirectText(node));
-      if (level === 0) {
-        blocks.push(new Paragraph({ text: `Root Element: ${node.nodeName}`, heading: HeadingLevel.HEADING_1, spacing: { before: 180, after: 120 } }));
-      } else if (level <= 3) {
-        blocks.push(new Paragraph({ text: node.nodeName, heading: HeadingLevel[`HEADING_${Math.min(level,3)}`], spacing: { before: 140, after: 80 } }));
-      } else {
-        blocks.push(new Paragraph({ indent: { left: Math.min(level, 8) * 280 }, spacing: { before: 30, after: 30 }, children: [new TextRun({ text: '• ', bold: true }), new TextRun({ text: node.nodeName, bold: true })] }));
-      }
-      blocks.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Path: ', bold: true }), new TextRun({ text: currentPath })] }));
-      if (directText !== 'Not provided') blocks.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Text content: ', bold: true }), new TextRun({ text: directText })] }));
-      Array.from(node.children).forEach(child => blocks.push(...genericBlocks(child, level + 1, currentPath)));
-      return blocks;
-    }
+
     async function generateReport() {
       if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
-      if (!state.docxReady || !window.docx) {
-        showStatus('DOCX library is not available. Check internet access or CDN blocking and reload the page.', 'error');
-        return;
-      }
+      if (!state.docxReady || !window.docx) { showStatus('DOCX library is not available. Check internet access or CDN blocking and reload the page.', 'error'); return; }
+
       try {
-        showStatus('Generating Word report…', 'info');
-        el.convertBtn.disabled = true;
+        showStatus('Generating Word report…', 'info'); el.convertBtn.disabled = true;
         const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
-        const title = el.reportTitle.value.trim() || 'XML Report';
-        const rawName = el.outputName.value.trim() || 'xml-report.docx';
-        const fileName = sanitizeFileName(rawName.endsWith('.docx') ? rawName : `${rawName}.docx`) || 'xml-report.docx';
+        const title = el.reportTitle.value.trim() || 'Standard form for the submission of a take charge request';
+        const rawName = el.outputName.value.trim() || 'take-charge-request-report.docx';
+        const fileName = sanitizeFileName(rawName.endsWith('.docx') ? rawName : `${rawName}.docx`) || 'take-charge-request-report.docx';
         const createdAt = new Date().toLocaleString();
         const children = [];
-        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 240, after: 180 }, children: [new TextRun({ text: title, bold: true, size: 34, color: '0F172A' })] }));
-        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: state.detectedFormat, italics: true, size: 22, color: '475569' })] }));
-        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 240 }, children: [new TextRun({ text: `Source File: ${state.selectedFile.name}`, size: 22, color: '334155' })] }));
-        children.push(new Paragraph({ text: 'Overview', heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 100 } }));
-        children.push(new Paragraph({ spacing: { after: 160 }, children: [new TextRun({ text: state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? 'This report restructures the XML into a case-oriented summary. Safe code mappings are applied for recognizable values such as sex codes and numeric country/nationality codes; unknown or uncertain codes remain visible in raw form.' : 'This document summarizes the uploaded XML file in a structured Word report.', color: '334155' })] }));
+
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 240, after: 80 }, children: [new TextRun({ text: title, bold: true, size: 34, color: '0F172A' })] }));
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: 'ANNEX II', bold: true, size: 24, color: '1D4ED8' })] }));
+        children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 220 }, children: [new TextRun({ text: `Source File: ${state.selectedFile.name}`, italics: true, size: 20, color: '475569' })] }));
 
         if (el.includeStats.checked && state.stats) {
           children.push(new Paragraph({ text: 'Executive Summary', heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 100 } }));
           children.push(createSummaryTable(window.docx, [
-            ['Report Title', title],
             ['Detected Format', state.detectedFormat],
             ['Source File', state.selectedFile.name],
             ['Root Element', state.stats.rootName],
@@ -573,30 +416,31 @@
             ['Maximum Depth', state.stats.maxDepth],
             ['Generated On', createdAt]
           ]));
-          children.push(new Paragraph({ text: '', spacing: { after: 140 } }));
+          children.push(new Paragraph({ text: '', spacing: { after: 120 } }));
         }
 
-        if (state.detectedFormat === 'Dublinet TakeChargeRequestForm') {
-          const data = extractDublinetData(state.xmlDoc);
-          const sections = [
-            ['Request Overview', data.overview],
-            ['Applicant Details', data.applicant],
-            ['Legal Basis & Evidence', data.legal],
-            ['Administrative Status', data.admin],
-            ['Signature Summary', data.signature]
-          ];
-          sections.forEach(([sectionTitle, rows]) => {
-            children.push(new Paragraph({ text: sectionTitle, heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 100 } }));
+        if (state.detectedFormat === 'DubliNet TakeChargeRequestForm') {
+          const data = extractDublinetAnnexII(state.xmlDoc);
+          const addSection = (title, subtitle, rows) => {
+            children.push(new Paragraph({ text: title, heading: HeadingLevel.HEADING_1, spacing: { before: 120, after: 60 } }));
+            if (subtitle) children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: subtitle, color: '475569' })] }));
             children.push(createSummaryTable(window.docx, rows));
-            children.push(new Paragraph({ text: '', spacing: { after: 120 } }));
-          });
-          children.push(new Paragraph({ text: 'Notes on code mapping', heading: HeadingLevel.HEADING_1, spacing: { before: 100, after: 90 } }));
-          children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Sex codes are mapped conservatively using the ISO/IEC 5218-style 1/2/0/9 scheme when present in padded form (for example, 0001 → Male).', color: '334155' })] }));
-          children.push(new Paragraph({ spacing: { after: 60 }, children: [new TextRun({ text: 'Numeric nationality values are mapped where they match recognizable ISO 3166 numeric country codes (for example, 0032 → Argentina [032]).', color: '334155' })] }));
-          children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: 'Uncertain internal Dublinet codes such as some member-state or legal-basis codes are intentionally left raw to avoid incorrect interpretation.', color: '334155' })] }));
+            children.push(new Paragraph({ text: '', spacing: { after: 110 } }));
+          };
+
+          addSection('Personal and business data', 'Mandatory fields are preceded by marked * in the original Annex II form layout.', data.personalBusinessData);
+          addSection('Request based on', 'This section follows the ordering of the Annex II take charge request form.', data.requestBasedOn);
+          addSection('Urgent reply and procedure flags', '', data.urgentAndProcedure);
+          if (el.includeTech.checked) addSection('Transmission and signature summary', '', data.transmissionSummary);
+
+          children.push(new Paragraph({ text: 'Code mapping notes', heading: HeadingLevel.HEADING_1, spacing: { before: 100, after: 70 } }));
+          children.push(new Paragraph({ spacing: { after: 50 }, children: [new TextRun({ text: 'Mapped labels come from the embedded official DubliNet code tables where available. Unknown or unmatched values remain visible in raw form.', color: '334155' })] }));
+          children.push(new Paragraph({ spacing: { after: 50 }, children: [new TextRun({ text: 'Nationality, sex, marital status, and take charge legal basis are interpreted from the DubliNet workbook rather than from generic fallback standards.', color: '334155' })] }));
+          children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: 'If a Member State code does not exactly match the supplied DubliNet code tables, the raw value is shown unchanged to avoid a false mapping.', color: '334155' })] }));
         } else {
           children.push(new Paragraph({ text: 'Detailed XML Structure', heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 100 } }));
-          children.push(...genericBlocks(state.xmlDoc.documentElement));
+          children.push(new Paragraph({ spacing: { after: 100 }, children: [new TextRun({ text: 'The uploaded XML was not recognized as a DubliNet TakeChargeRequestForm. A generic XML structure preview is provided instead.', color: '334155' })] }));
+          children.push(new Paragraph({ children: [new TextRun({ text: buildGenericPreview(state.xmlDoc.documentElement), font: 'Courier New', size: 18, color: '334155' })] }));
         }
 
         if (el.includeRawXml.checked) {
@@ -604,53 +448,31 @@
           const serializer = new XMLSerializer();
           const xmlString = serializer.serializeToString(state.xmlDoc);
           const wrappedLines = xmlString.match(/.{1,110}/g) || [xmlString];
-          wrappedLines.forEach(line => {
-            children.push(new Paragraph({ spacing: { after: 18 }, children: [new TextRun({ text: line, font: 'Courier New', size: 18, color: '334155' })] }));
-          });
+          wrappedLines.forEach(line => children.push(new Paragraph({ spacing: { after: 18 }, children: [new TextRun({ text: line, font: 'Courier New', size: 18, color: '334155' })] })));
         }
 
         const doc = new Document({ sections: [{ properties: {}, children }] });
         const blob = await Packer.toBlob(doc);
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+        const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
         setTimeout(() => URL.revokeObjectURL(url), 1500);
         showStatus('DOCX report generated successfully. Download should start automatically.', 'success');
-      } catch (err) {
-        console.error(err);
-        showStatus('Conversion failed while generating the DOCX report.', 'error');
-      } finally {
-        updateButtons();
-      }
+      } catch (err) { console.error(err); showStatus('Conversion failed while generating the DOCX report.', 'error'); }
+      finally { updateButtons(); }
     }
 
     el.fileInput.addEventListener('change', async (e) => { const file = e.target.files[0]; if (file) await loadSelectedFile(file); });
     el.dropzone.addEventListener('dragover', (e) => { e.preventDefault(); el.dropzone.classList.add('drag'); });
     el.dropzone.addEventListener('dragleave', () => { el.dropzone.classList.remove('drag'); });
     el.dropzone.addEventListener('drop', async (e) => { e.preventDefault(); el.dropzone.classList.remove('drag'); const file = e.dataTransfer.files[0]; if (file) await loadSelectedFile(file); });
-    el.includeAttributes.addEventListener('change', () => { if (state.xmlDoc) el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? buildDublinetPreview(extractDublinetData(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement); });
-    el.previewBtn.addEventListener('click', () => {
-      if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
-      el.preview.textContent = state.detectedFormat === 'Dublinet TakeChargeRequestForm' ? buildDublinetPreview(extractDublinetData(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement);
-      showStatus('Preview refreshed.', 'info');
-    });
+    el.previewBtn.addEventListener('click', () => { if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; } el.preview.textContent = state.detectedFormat === 'DubliNet TakeChargeRequestForm' ? buildAnnexPreview(extractDublinetAnnexII(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement); showStatus('Preview refreshed.', 'info'); });
     el.convertBtn.addEventListener('click', generateReport);
     el.resetBtn.addEventListener('click', resetAll);
 
     document.addEventListener('DOMContentLoaded', async () => {
-      resetAll();
-      showStatus('Loading DOCX library…', 'info');
-      try {
-        await ensureDocxLoaded();
-        updateButtons();
-        el.preview.textContent = 'Upload a valid XML file to preview its structure.';
-        showStatus('DOCX library loaded successfully. Upload an XML file to continue.', 'success');
-      } catch (err) {
-        console.error(err);
-        updateButtons();
-        el.preview.textContent = 'DOCX library failed to load. You can still test XML upload, but DOCX export will stay disabled.';
-        showStatus('DOCX library failed to load from all sources. Check internet access, ad blockers, firewall rules, or CSP restrictions.', 'error');
-      }
+      resetAll(); showStatus('Loading DOCX library…', 'info');
+      try { await ensureDocxLoaded(); updateButtons(); el.preview.textContent = 'Upload a valid XML file to preview its structure.'; showStatus('DOCX library loaded successfully. Upload an XML file to continue.', 'success'); }
+      catch (err) { console.error(err); updateButtons(); el.preview.textContent = 'DOCX library failed to load. You can still test XML upload, but DOCX export will stay disabled.'; showStatus('DOCX library failed to load from all sources. Check internet access, ad blockers, firewall rules, or CSP restrictions.', 'error'); }
     });
   </script>
 </body>
