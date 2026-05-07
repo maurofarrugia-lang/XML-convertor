@@ -1,29 +1,24 @@
-# DubliNet Annex II XML to DOCX Converter
+# DubliNet XML Converter
 
-A GitHub-ready single-file HTML tool that converts DubliNet `TakeChargeRequestForm` XML into a Word report that follows the **ANNEX II** form layout.
+A GitHub-ready single-file HTML tool for converting DubliNet XML into **template-selectable DOCX or HTML outputs**.
 
-## What this version fixes
+## What is included
 
-- Uses the attached **official DubliNet Excel code tables** for field mappings.
-- Resolves nationality more safely by checking DubliNet nationality and ISO/ICAO mappings before falling back to raw values.
-- Resolves take-charge legal bases from the official Annex II / III workbook.
-- Resolves member-state and country-like values using DubliNet member-state tables and ISO alpha-2 / alpha-3 interpretation where needed.
-- Builds the DOCX output in the same order as the Annex II preview fields.
-- Keeps unknown values visible instead of inventing mappings.
+- Official DubliNet code tables embedded from the uploaded workbook
+- Safer nationality, legal-base, member-state, ISO and ICAO interpretation
+- Template chooser covering the uploaded take charge, take back, transfer, relocation, exchange-of-information and reply layouts
+- DOCX export and browser-ready HTML export
+- DubliNet-style preview with header, breadcrumb, progress rail, section cards and field rows inspired by the uploaded templates
 
-## Included files
+## Output templates included
 
-- `index.html` — standalone converter, ready for GitHub Pages
-- `README.md`
-- `.gitignore`
-
-## Usage
-
-1. Open `index.html` in a browser.
-2. Upload a DubliNet XML export.
-3. Review the Annex II preview.
-4. Click **Generate DOCX Report**.
+- Take charge / take back request and reply variants
+- Re-examination templates
+- Transfer confirmation, supervised / escorted / voluntary transfer templates
+- Relocation templates
+- Exchange-of-information and information-reply templates
+- General-case-data / section-specific templates for TC and TB notifications
 
 ## Notes
 
-The page includes embedded mapping data so it can keep working after load without fetching the workbook again. The DOCX library still loads from public CDN fallbacks in the browser.
+The strongest semantic mapping is still the dedicated `TakeChargeRequestForm` flow. For other XML structures, the converter falls back to a generic DubliNet-style renderer that keeps all detected XML leaf fields visible while still using the selected template shell.

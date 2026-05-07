@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>DubliNet Annex II XML to DOCX Converter</title>
+  <title>DubliNet XML Converter · Multi-template DOCX / HTML</title>
   <style>
     :root {
       --bg: #f4f7fb;
@@ -92,23 +92,112 @@
     .preview-head { padding: 12px 14px; font-size: 13px; font-weight: 800; color: #cbd5e1; background: #111827; border-bottom: 1px solid #1e293b; }
     pre { margin: 0; padding: 16px; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; max-height: 560px; overflow: auto; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     .note { margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+  
+    .field select {
+      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+    }
+    .field select:focus { border-color: #93c5fd; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
+    #previewContent { max-height: 620px; overflow: auto; background: #f8fafc; color: #0f172a; }
+    .template-preview { background: #fff; min-height: 520px; }
+    .template-shell { padding: 18px; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 16%); }
+    .template-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:#475569; padding-bottom:10px; border-bottom:1px solid #dbe3ee; }
+    .template-brand { font-weight:800; color:#0f172a; letter-spacing:-0.01em; }
+    .template-tools { display:flex; gap:8px; }
+    .template-tool { width:28px; height:28px; border:1px solid #cbd5e1; border-radius:10px; display:grid; place-items:center; background:#fff; color:#2563eb; font-weight:800; }
+    .template-breadcrumb { margin:14px 0 8px; color:#64748b; font-size:12px; }
+    .template-title { font-size:28px; font-weight:800; letter-spacing:-0.03em; margin:0; color:#0f172a; }
+    .template-annex { margin-top:4px; font-size:12px; letter-spacing:0.14em; color:#2563eb; font-weight:800; text-transform:uppercase; }
+    .template-rule { margin:16px 0; border-top:1px solid #dbe3ee; }
+    .template-body { display:grid; grid-template-columns: 260px 1fr; gap:18px; }
+    @media (max-width: 880px) { .template-body { grid-template-columns: 1fr; } }
+    .template-rail { border-right:1px solid #e2e8f0; padding-right:16px; }
+    @media (max-width: 880px) { .template-rail { border-right:0; border-bottom:1px solid #e2e8f0; padding-right:0; padding-bottom:12px; } }
+    .rail-title { font-size:12px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+    .rail-card { border:1px solid #dbe3ee; border-radius:16px; background:#fff; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+    .rail-icon { width:26px; height:26px; border-radius:999px; display:grid; place-items:center; font-size:13px; font-weight:800; color:white; background:#16a34a; flex:0 0 auto; }
+    .rail-icon.current { background:#2563eb; }
+    .rail-icon.next { background:#94a3b8; }
+    .rail-text strong { display:block; font-size:13px; color:#0f172a; }
+    .rail-text span { display:block; font-size:12px; color:#64748b; margin-top:2px; }
+    .template-main { padding-left:4px; }
+    .template-section { margin-bottom:18px; }
+    .template-section h3 { margin:0 0 10px; font-size:22px; letter-spacing:-0.02em; color:#0f172a; }
+    .template-note { font-size:12px; color:#64748b; margin-bottom:12px; }
+    .template-callout { display:flex; gap:10px; border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#f8fafc; margin-bottom:14px; }
+    .callout-icon { width:24px; height:24px; border-radius:999px; background:#e2e8f0; display:grid; place-items:center; color:#334155; font-weight:800; }
+    .callout-text strong { display:block; margin-bottom:4px; }
+    .template-grid { display:grid; gap:12px; }
+    .field-card { border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#fff; }
+    .field-label { font-size:12px; font-weight:800; color:#334155; text-transform:none; margin-bottom:6px; }
+    .field-value { font-size:14px; color:#0f172a; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+    .field-value.muted { color:#64748b; }
+    .template-footer { display:flex; justify-content:space-between; gap:12px; font-size:11px; color:#64748b; margin-top:18px; padding-top:10px; border-top:1px solid #e2e8f0; }
+    .raw-preview { margin:0; padding:16px; background:#0f172a; color:#e2e8f0; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+
+  
+    .field select {
+      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+    }
+    .field select:focus { border-color: #93c5fd; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
+    #previewContent { max-height: 620px; overflow: auto; background: #f8fafc; color: #0f172a; }
+    .template-preview { background: #fff; min-height: 520px; }
+    .template-shell { padding: 18px; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 16%); }
+    .template-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:#475569; padding-bottom:10px; border-bottom:1px solid #dbe3ee; }
+    .template-brand { font-weight:800; color:#0f172a; letter-spacing:-0.01em; }
+    .template-tools { display:flex; gap:8px; }
+    .template-tool { width:28px; height:28px; border:1px solid #cbd5e1; border-radius:10px; display:grid; place-items:center; background:#fff; color:#2563eb; font-weight:800; }
+    .template-breadcrumb { margin:14px 0 8px; color:#64748b; font-size:12px; }
+    .template-title { font-size:28px; font-weight:800; letter-spacing:-0.03em; margin:0; color:#0f172a; }
+    .template-annex { margin-top:4px; font-size:12px; letter-spacing:0.14em; color:#2563eb; font-weight:800; text-transform:uppercase; }
+    .template-rule { margin:16px 0; border-top:1px solid #dbe3ee; }
+    .template-body { display:grid; grid-template-columns: 260px 1fr; gap:18px; }
+    @media (max-width: 880px) { .template-body { grid-template-columns: 1fr; } }
+    .template-rail { border-right:1px solid #e2e8f0; padding-right:16px; }
+    @media (max-width: 880px) { .template-rail { border-right:0; border-bottom:1px solid #e2e8f0; padding-right:0; padding-bottom:12px; } }
+    .rail-title { font-size:12px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+    .rail-card { border:1px solid #dbe3ee; border-radius:16px; background:#fff; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+    .rail-icon { width:26px; height:26px; border-radius:999px; display:grid; place-items:center; font-size:13px; font-weight:800; color:white; background:#16a34a; flex:0 0 auto; }
+    .rail-icon.current { background:#2563eb; }
+    .rail-icon.next { background:#94a3b8; }
+    .rail-text strong { display:block; font-size:13px; color:#0f172a; }
+    .rail-text span { display:block; font-size:12px; color:#64748b; margin-top:2px; }
+    .template-main { padding-left:4px; }
+    .template-section { margin-bottom:18px; }
+    .template-section h3 { margin:0 0 10px; font-size:22px; letter-spacing:-0.02em; color:#0f172a; }
+    .template-note { font-size:12px; color:#64748b; margin-bottom:12px; }
+    .template-callout { display:flex; gap:10px; border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#f8fafc; margin-bottom:14px; }
+    .callout-icon { width:24px; height:24px; border-radius:999px; background:#e2e8f0; display:grid; place-items:center; color:#334155; font-weight:800; }
+    .callout-text strong { display:block; margin-bottom:4px; }
+    .template-grid { display:grid; gap:12px; }
+    .field-card { border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#fff; }
+    .field-label { font-size:12px; font-weight:800; color:#334155; text-transform:none; margin-bottom:6px; }
+    .field-value { font-size:14px; color:#0f172a; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+    .field-value.muted { color:#64748b; }
+    .template-footer { display:flex; justify-content:space-between; gap:12px; font-size:11px; color:#64748b; margin-top:18px; padding-top:10px; border-top:1px solid #e2e8f0; }
+    .raw-preview { margin:0; padding:16px; background:#0f172a; color:#e2e8f0; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+
   </style>
 </head>
 <body>
   <div class="app">
     <div class="hero">
-      <div class="badge">Annex II Layout · Official DubliNet Code Tables</div>
-      <h1>DubliNet XML to DOCX Converter</h1>
+      <div class="badge">Multi-template Layouts · Official DubliNet Code Tables</div>
+      <h1>DubliNet XML Converter</h1>
       <p class="subtitle">
-        This version is rebuilt around the official DubliNet code table workbook and the Annex II take charge form layout.
-        It maps recognized codes to their official labels and generates a Word report that follows the structure of the standard form for the submission of a take charge request.
+        This version is rebuilt around the official DubliNet code table workbook and now supports a multi-template output flow. It lets the user choose the output template, keeps DubliNet code interpretation official, and can export either a styled DOCX or a browser-ready HTML file that mimics the uploaded DubliNet form layouts as closely as possible.
       </p>
     </div>
 
     <div class="layout">
       <div class="card">
         <h2>Upload & Settings</h2>
-        <p class="lead">Upload a DubliNet XML file and export an Annex II-style Word report with official code mappings embedded in the page.</p>
+        <p class="lead">Upload a DubliNet XML file, choose the target DubliNet form template, and export a DOCX report, a styled HTML form, or both.</p>
 
         <label class="dropzone" id="dropzone" for="xmlFile">
           <div class="icon">XML</div>
@@ -130,6 +219,21 @@
           </div>
         </div>
 
+        <div class="grid two" style="margin-top:14px;">
+          <div class="field">
+            <label for="templateChoice">Output template</label>
+            <select id="templateChoice"></select>
+          </div>
+          <div class="field">
+            <label for="outputFormat">Output format</label>
+            <select id="outputFormat">
+              <option value="docx">DOCX</option>
+              <option value="html">HTML</option>
+              <option value="both">DOCX + HTML</option>
+            </select>
+          </div>
+        </div>
+
         <div class="checks">
           <label class="check"><input type="checkbox" id="includeStats" checked /> Include executive summary table</label>
           <label class="check"><input type="checkbox" id="includeTech" checked /> Include transmission and signature summary</label>
@@ -138,7 +242,7 @@
 
         <div class="actions">
           <button class="secondary" id="previewBtn" disabled>Refresh Preview</button>
-          <button class="primary" id="convertBtn" disabled>Generate DOCX Report</button>
+          <button class="primary" id="convertBtn" disabled>Generate Output</button>
           <button class="secondary" id="resetBtn">Reset</button>
         </div>
 
@@ -147,7 +251,7 @@
 
       <div class="card">
         <h2>Analysis & Preview</h2>
-        <p class="lead">Review the detected format and mapped Annex II summary before exporting the final Word report.</p>
+        <p class="lead">Review the detected format and the selected DubliNet template rendering before exporting the final DOCX or HTML output.</p>
         <div class="stats">
           <div class="stat"><div class="label">Library status</div><div class="value" id="statLib">Loading…</div></div>
           <div class="stat"><div class="label">Detected format</div><div class="value" id="statFormat">—</div></div>
@@ -157,11 +261,11 @@
           <div class="stat"><div class="label">Max depth</div><div class="value" id="statDepth">0</div></div>
         </div>
         <div class="preview-box">
-          <div class="preview-head">Annex II Preview</div>
-          <pre id="previewContent">Loading DOCX library…</pre>
+          <div class="preview-head" id="previewHead">Template Preview</div>
+          <div id="previewContent">Loading DOCX library…</div>
         </div>
         <div class="note">
-          Official DubliNet code tables are embedded in this file for offline use after page load. Unknown values remain visible in raw form instead of being guessed.
+          Official DubliNet code tables are embedded in this file for offline use after page load. HTML export uses a DubliNet-style layout with header, breadcrumb, section cards, and field rows inspired by the uploaded templates.
         </div>
       </div>
     </div>
@@ -173,6 +277,205 @@ const ISO_ALPHA2_TO_NAME = {"AW":"Aruba","AF":"Islamic Republic of Afghanistan",
 const ISO_ALPHA3_TO_NAME = {"ABW":"Aruba","AFG":"Islamic Republic of Afghanistan","AGO":"Republic of Angola","AIA":"Anguilla","ALA":"Åland Islands","ALB":"Republic of Albania","AND":"Principality of Andorra","ARE":"United Arab Emirates","ARG":"Argentine Republic","ARM":"Republic of Armenia","ASM":"American Samoa","ATA":"Antarctica","ATF":"French Southern Territories","ATG":"Antigua and Barbuda","AUS":"Australia","AUT":"Republic of Austria","AZE":"Republic of Azerbaijan","BDI":"Republic of Burundi","BEL":"Kingdom of Belgium","BEN":"Republic of Benin","BES":"Bonaire, Sint Eustatius and Saba","BFA":"Burkina Faso","BGD":"People's Republic of Bangladesh","BGR":"Republic of Bulgaria","BHR":"Kingdom of Bahrain","BHS":"Commonwealth of the Bahamas","BIH":"Republic of Bosnia and Herzegovina","BLM":"Saint Barthélemy","BLR":"Republic of Belarus","BLZ":"Belize","BMU":"Bermuda","BOL":"Bolivia","BRA":"Federative Republic of Brazil","BRB":"Barbados","BRN":"Brunei Darussalam","BTN":"Kingdom of Bhutan","BVT":"Bouvet Island","BWA":"Republic of Botswana","CAF":"Central African Republic","CAN":"Canada","CCK":"Cocos (Keeling) Islands","CHE":"Swiss Confederation","CHL":"Republic of Chile","CHN":"People's Republic of China","CIV":"Republic of Côte d'Ivoire","CMR":"Republic of Cameroon","COD":"Congo, The Democratic Republic of the","COG":"Republic of the Congo","COK":"Cook Islands","COL":"Republic of Colombia","COM":"Union of the Comoros","CPV":"Republic of Cabo Verde","CRI":"Republic of Costa Rica","CUB":"Republic of Cuba","CUW":"Curaçao","CXR":"Christmas Island","CYM":"Cayman Islands","CYP":"Republic of Cyprus","CZE":"Czech Republic","DEU":"Federal Republic of Germany","DJI":"Republic of Djibouti","DMA":"Commonwealth of Dominica","DNK":"Kingdom of Denmark","DOM":"Dominican Republic","DZA":"People's Democratic Republic of Algeria","ECU":"Republic of Ecuador","EGY":"Arab Republic of Egypt","ERI":"the State of Eritrea","ESH":"Western Sahara","ESP":"Kingdom of Spain","EST":"Republic of Estonia","ETH":"Federal Democratic Republic of Ethiopia","FIN":"Republic of Finland","FJI":"Republic of Fiji","FLK":"Falkland Islands (Malvinas)","FRA":"French Republic","FRO":"Faroe Islands","FSM":"Federated States of Micronesia","GAB":"Gabonese Republic","GBR":"United Kingdom of Great Britain and Northern Ireland","GEO":"Georgia","GGY":"Guernsey","GHA":"Republic of Ghana","GIB":"Gibraltar","GIN":"Republic of Guinea","GLP":"Guadeloupe","GMB":"Republic of the Gambia","GNB":"Republic of Guinea-Bissau","GNQ":"Republic of Equatorial Guinea","GRC":"Hellenic Republic","GRD":"Grenada","GRL":"Greenland","GTM":"Republic of Guatemala","GUF":"French Guiana","GUM":"Guam","GUY":"Republic of Guyana","HKG":"Hong Kong Special Administrative Region of China","HMD":"Heard Island and McDonald Islands","HND":"Republic of Honduras","HRV":"Republic of Croatia","HTI":"Republic of Haiti","HUN":"Hungary","IDN":"Republic of Indonesia","IMN":"Isle of Man","IND":"Republic of India","IOT":"British Indian Ocean Territory","IRL":"Ireland","IRN":"Iran","IRQ":"Republic of Iraq","ISL":"Republic of Iceland","ISR":"State of Israel","ITA":"Italian Republic","JAM":"Jamaica","JEY":"Jersey","JOR":"Hashemite Kingdom of Jordan","JPN":"Japan","KAZ":"Republic of Kazakhstan","KEN":"Republic of Kenya","KGZ":"Kyrgyz Republic","KHM":"Kingdom of Cambodia","KIR":"Republic of Kiribati","KNA":"Saint Kitts and Nevis","KOR":"South Korea","KWT":"State of Kuwait","LAO":"Laos","LBN":"Lebanese Republic","LBR":"Republic of Liberia","LBY":"Libya","LCA":"Saint Lucia","LIE":"Principality of Liechtenstein","LKA":"Democratic Socialist Republic of Sri Lanka","LSO":"Kingdom of Lesotho","LTU":"Republic of Lithuania","LUX":"Grand Duchy of Luxembourg","LVA":"Republic of Latvia","MAC":"Macao Special Administrative Region of China","MAF":"Saint Martin (French part)","MAR":"Kingdom of Morocco","MCO":"Principality of Monaco","MDA":"Moldova","MDG":"Republic of Madagascar","MDV":"Republic of Maldives","MEX":"United Mexican States","MHL":"Republic of the Marshall Islands","MKD":"Republic of North Macedonia","MLI":"Republic of Mali","MLT":"Republic of Malta","MMR":"Republic of Myanmar","MNE":"Montenegro","MNG":"Mongolia","MNP":"Commonwealth of the Northern Mariana Islands","MOZ":"Republic of Mozambique","MRT":"Islamic Republic of Mauritania","MSR":"Montserrat","MTQ":"Martinique","MUS":"Republic of Mauritius","MWI":"Republic of Malawi","MYS":"Malaysia","MYT":"Mayotte","NAM":"Republic of Namibia","NCL":"New Caledonia","NER":"Republic of the Niger","NFK":"Norfolk Island","NGA":"Federal Republic of Nigeria","NIC":"Republic of Nicaragua","NIU":"Niue","NLD":"Kingdom of the Netherlands","NOR":"Kingdom of Norway","NPL":"Federal Democratic Republic of Nepal","NRU":"Republic of Nauru","NZL":"New Zealand","OMN":"Sultanate of Oman","PAK":"Islamic Republic of Pakistan","PAN":"Republic of Panama","PCN":"Pitcairn","PER":"Republic of Peru","PHL":"Republic of the Philippines","PLW":"Republic of Palau","PNG":"Independent State of Papua New Guinea","POL":"Republic of Poland","PRI":"Puerto Rico","PRK":"North Korea","PRT":"Portuguese Republic","PRY":"Republic of Paraguay","PSE":"the State of Palestine","PYF":"French Polynesia","QAT":"State of Qatar","REU":"Réunion","ROU":"Romania","RUS":"Russian Federation","RWA":"Rwandese Republic","SAU":"Kingdom of Saudi Arabia","SDN":"Republic of the Sudan","SEN":"Republic of Senegal","SGP":"Republic of Singapore","SGS":"South Georgia and the South Sandwich Islands","SHN":"Saint Helena, Ascension and Tristan da Cunha","SJM":"Svalbard and Jan Mayen","SLB":"Solomon Islands","SLE":"Republic of Sierra Leone","SLV":"Republic of El Salvador","SMR":"Republic of San Marino","SOM":"Federal Republic of Somalia","SPM":"Saint Pierre and Miquelon","SRB":"Republic of Serbia","SSD":"Republic of South Sudan","STP":"Democratic Republic of Sao Tome and Principe","SUR":"Republic of Suriname","SVK":"Slovak Republic","SVN":"Republic of Slovenia","SWE":"Kingdom of Sweden","SWZ":"Kingdom of Eswatini","SXM":"Sint Maarten (Dutch part)","SYC":"Republic of Seychelles","SYR":"Syria","TCA":"Turks and Caicos Islands","TCD":"Republic of Chad","TGO":"Togolese Republic","THA":"Kingdom of Thailand","TJK":"Republic of Tajikistan","TKL":"Tokelau","TKM":"Turkmenistan","TLS":"Democratic Republic of Timor-Leste","TON":"Kingdom of Tonga","TTO":"Republic of Trinidad and Tobago","TUN":"Republic of Tunisia","TUR":"Republic of Türkiye","TUV":"Tuvalu","TWN":"Taiwan","TZA":"Tanzania","UGA":"Republic of Uganda","UKR":"Ukraine","UMI":"United States Minor Outlying Islands","URY":"Eastern Republic of Uruguay","USA":"United States of America","UZB":"Republic of Uzbekistan","VAT":"Holy See (Vatican City State)","VCT":"Saint Vincent and the Grenadines","VEN":"Venezuela","VGB":"British Virgin Islands","VIR":"Virgin Islands of the United States","VNM":"Vietnam","VUT":"Republic of Vanuatu","WLF":"Wallis and Futuna","WSM":"Independent State of Samoa","YEM":"Republic of Yemen","ZAF":"Republic of South Africa","ZMB":"Republic of Zambia","ZWE":"Republic of Zimbabwe","XKX":"Kosovo"};
 const MEMBER_STATE_JOIN = {"0000":"Republic of Austria","0001":"Kingdom of Belgium","0002":"Republic of Bulgaria","0003":"Republic of Cyprus","0004":"Republic of Croatia","0005":"Czech Republic","0006":"Kingdom of Denmark","0007":"Republic of Estonia","0008":"Republic of Finland","0009":"French Republic","0010":"Federal Republic of Germany","0011":"Hellenic Republic","0012":"Hungary","0013":"Republic of Iceland","0014":"Ireland","0015":"Italian Republic","0016":"Republic of Latvia","0017":"Principality of Liechtenstein","0018":"Republic of Lithuania","0019":"Grand Duchy of Luxembourg","0020":"Republic of Malta","0021":"Kingdom of the Netherlands","0022":"Kingdom of Norway","0023":"Romania","0024":"Republic of Poland","0025":"Portuguese Republic","0026":"Slovak Republic","0027":"Republic of Slovenia","0028":"Kingdom of Spain","0029":"Kingdom of Sweden","0030":"Swiss Confederation"};
 const CT72_CODE_TO_ALPHA3 = Object.fromEntries(Object.entries(CODE_TABLES.CT72_ISO_ICAO_TO_CT02_MAPPING || {}).map(([code, item]) => [code, String(item.label || '').toUpperCase()]));
+
+
+const TEMPLATE_OPTIONS = [
+  { id: 'take_charge_request', label: 'Take charge request', documentTitle: 'Take charge request', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'Accept / Reject' },
+  { id: 'accepting_a_tc_request', label: 'Accepting a TC request', documentTitle: 'Accepting a take charge request', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'Acceptance details' },
+  { id: 'refusing_a_tc_request', label: 'Refusing a TC request', documentTitle: 'Refusing a take charge request', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'Rejection details' },
+  { id: 'accepting_reexam', label: 'Accepting re-exam', documentTitle: 'Accepting a re-examination request', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Re-examination request', sectionTitle: 'Acceptance details' },
+  { id: 'replying_to_a_reexam_request', label: 'Replying to a re-exam request', documentTitle: 'Replying to a re-examination request', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Re-examination request', sectionTitle: 'Reply details' },
+  { id: 'requesting_reexam_after_non_confirmation', label: 'Requesting re-exam after non confirmation', documentTitle: 'Requesting re-examination after non confirmation', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Re-examination request', sectionTitle: 'Re-examination details' },
+  { id: 'non_confirmation_of_reexam_tb_notif', label: 'Non confirmation of re-exam TB notif', documentTitle: 'Non confirmation of re-examination take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Non confirmation' },
+  { id: 'take_back_notification', label: 'Take back notification', documentTitle: 'Take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Notification details' },
+  { id: 'confirmation_of_tb_notification', label: 'Confirmation of TB notification', documentTitle: 'Confirmation of take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Confirmation details' },
+  { id: 'replying_to_a_tb_not', label: 'Replying to a TB notification', documentTitle: 'Replying to a take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Reply details' },
+  { id: 'replying_to_a_non_confirmation_of_a_tb_not', label: 'Replying to a non confirmation of a TB notif', documentTitle: 'Replying to a non confirmation of a take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Reply details' },
+  { id: 'non_confirmation_of_tb_notif', label: 'Non confirmation of TB notification', documentTitle: 'Non confirmation of take back notification', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Non confirmation' },
+  { id: 'tb_notif_transfer_not_needed', label: 'TB notif transfer not needed', documentTitle: 'Take back notification - transfer not needed', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Transfer status' },
+  { id: 'cancelling_request_as_transfer_is_not_needed', label: 'Cancelling request as transfer is not needed', documentTitle: 'Cancelling request as transfer is not needed', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer follow-up', sectionTitle: 'Cancellation details' },
+  { id: 'additional_info_after_tb_confirmation', label: 'Additional info after TB confirmation', documentTitle: 'Additional information after take back confirmation', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Additional information' },
+  { id: 'additional_info_re_transfer_by_notified_ms', label: 'Additional info re transfer by notified MS', documentTitle: 'Additional information related to transfer by notified Member State', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Transfer information' },
+  { id: 'additional_info_after_acceptance', label: 'Additional info after acceptance', documentTitle: 'Additional information after acceptance', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'Additional information' },
+  { id: 'confirmation_of_a_transfer', label: 'Confirmation of a transfer', documentTitle: 'Confirmation of a transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer', sectionTitle: 'Transfer confirmation' },
+  { id: 'confirmation_of_transfer_for_some_people', label: 'Confirmation of transfer for some of the people', documentTitle: 'Confirmation of transfer for some of the people', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Group transfer', sectionTitle: 'Partial transfer confirmation' },
+  { id: 'confirmation_of_all_people_in_group_transfer', label: 'Confirmation of all people in group transfer', documentTitle: 'Confirmation of all people in group transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Group transfer', sectionTitle: 'Group transfer confirmation' },
+  { id: 'report_arrival_for_voluntary_transfer', label: 'Report arrival for voluntary transfer', documentTitle: 'Report arrival for voluntary transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer', sectionTitle: 'Arrival details' },
+  { id: 'response_to_an_escorted_transfer', label: 'Response to an escorted transfer', documentTitle: 'Response to an escorted transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer', sectionTitle: 'Escort response' },
+  { id: 'non_confirmation_of_a_supervised_transfer', label: 'Non confirmation of a supervised transfer', documentTitle: 'Non confirmation of a supervised transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer', sectionTitle: 'Non confirmation' },
+  { id: 'reply_on_alternatives_to_supervised_transfer', label: 'Reply on alternatives to supervised transfer', documentTitle: 'Reply on alternatives to supervised transfer', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Transfer', sectionTitle: 'Alternative arrangements' },
+  { id: 'general_transfer_procedure_10_plus_ppl', label: 'General transfer procedure 10+ people', documentTitle: 'General transfer procedure for 10+ people', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Group transfer', sectionTitle: 'Transfer procedure' },
+  { id: 'relocation_procedure_info', label: 'Relocation procedure information', documentTitle: 'Relocation procedure information', annex: 'ANNEX IV', breadcrumb: 'Home > Available forms > Relocation procedure', sectionTitle: 'Security checks / relocation details' },
+  { id: 'general_data_about_relocation', label: 'General data about relocation', documentTitle: 'General data about relocation', annex: 'ANNEX IV', breadcrumb: 'Home > Available forms > Relocation procedure', sectionTitle: 'General relocation data' },
+  { id: 'replying_to_relocation_request', label: 'Replying to relocation request', documentTitle: 'Replying to a relocation request', annex: 'ANNEX IV', breadcrumb: 'Home > Available forms > Relocation procedure', sectionTitle: 'Reply details' },
+  { id: 'relocation_remote_interview_details', label: 'Relocation remote interview details', documentTitle: 'Relocation remote interview details', annex: 'ANNEX IV', breadcrumb: 'Home > Available forms > Relocation procedure', sectionTitle: 'Interview details' },
+  { id: 'general_data_request_tc', label: 'TC general case data', documentTitle: 'Take charge general case data', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'General case data' },
+  { id: 'tc_request_section', label: 'TC request section', documentTitle: 'Take charge request section', annex: 'ANNEX II', breadcrumb: 'Home > Available forms > Take charge request', sectionTitle: 'Request section' },
+  { id: 'tb_not_general_case_data', label: 'TB notification general case data', documentTitle: 'Take back notification general case data', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'General case data' },
+  { id: 'tb_not_personal_and_business_data', label: 'TB notification personal and business data', documentTitle: 'Take back notification personal and business data', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Personal and business data' },
+  { id: 'tb_not_family_members_data', label: 'TB notification family members data', documentTitle: 'Take back notification family members data', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Take back notification', sectionTitle: 'Family members data' },
+  { id: 'exchange_of_info_art_23_7', label: 'Exchange of info Art 23(7)', documentTitle: 'Exchange of information - Article 23(7)', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Exchange of information', sectionTitle: 'Information exchange' },
+  { id: 'exchange_of_info_art_34', label: 'Exchange of info Art 34', documentTitle: 'Exchange of information - Article 34', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Exchange of information', sectionTitle: 'Information exchange' },
+  { id: 'exchange_of_info_art_51', label: 'Exchange of info Art 51', documentTitle: 'Exchange of information - Article 51', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Exchange of information', sectionTitle: 'Information exchange' },
+  { id: 'exchange_of_health_data', label: 'Exchange of health data', documentTitle: 'Exchange of health data', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Exchange of information', sectionTitle: 'Health data exchange' },
+  { id: 'info_reply_art_23_7', label: 'Info reply Art 23(7)', documentTitle: 'Information reply - Article 23(7)', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Information reply', sectionTitle: 'Reply details' },
+  { id: 'info_reply_art_34', label: 'Info reply Art 34', documentTitle: 'Information reply - Article 34', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Information reply', sectionTitle: 'Reply details' },
+  { id: 'info_reply_art_51', label: 'Info reply Art 51', documentTitle: 'Information reply - Article 51', annex: 'ANNEX III', breadcrumb: 'Home > Available forms > Information reply', sectionTitle: 'Reply details' }
+];
+function getSelectedTemplate() { return TEMPLATE_OPTIONS.find(t => t.id === el.templateChoice?.value) || TEMPLATE_OPTIONS[0]; }
+function slugifyText(value) { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+function currentOutputFormat() { return el.outputFormat?.value || 'docx'; }
+function docxNeeded() { return currentOutputFormat() !== 'html'; }
+function populateTemplateOptions() {
+  if (!el.templateChoice) return;
+  el.templateChoice.innerHTML = TEMPLATE_OPTIONS.map(t => `<option value="${t.id}">${t.label}</option>`).join('');
+  if (!el.templateChoice.value) el.templateChoice.value = 'take_charge_request';
+}
+function buildOutputFileName(sourceName = '') {
+  const template = getSelectedTemplate();
+  const base = sourceName ? baseName(sourceName) : slugifyText(template.id || template.documentTitle || 'dublinet-output');
+  const format = currentOutputFormat();
+  const ext = format === 'html' ? 'html' : 'docx';
+  return `${base}-${slugifyText(template.id)}.${ext}`;
+}
+function applyTemplateDefaults(forceTitle = false) {
+  const template = getSelectedTemplate();
+  if (!el.reportTitle.dataset.userEdited) el.reportTitle.dataset.userEdited = '0';
+  if (forceTitle || !el.reportTitle.value.trim() || el.reportTitle.dataset.userEdited === '0') {
+    el.reportTitle.value = template.documentTitle;
+    el.reportTitle.dataset.userEdited = '0';
+  }
+  if (!el.outputName.dataset.userEdited || el.outputName.dataset.userEdited === '0') {
+    el.outputName.value = buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml');
+    el.outputName.dataset.userEdited = '0';
+  }
+  if (el.previewHead) el.previewHead.textContent = `${template.label} preview`;
+}
+function escapeHtml(value) {
+  return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+function buildRailCards(template) {
+  return `
+    <div class="rail-title">Previous parts</div>
+    <div class="rail-card"><div class="rail-icon">✓</div><div class="rail-text"><strong>Source XML</strong><span>${escapeHtml(state.selectedFile?.name || 'Uploaded file')}</span></div></div>
+    <div class="rail-card"><div class="rail-icon current">✎</div><div class="rail-text"><strong>Current template</strong><span>${escapeHtml(template.sectionTitle || template.label)}</span></div></div>
+    <div class="rail-title" style="margin-top:14px;">Next part</div>
+    <div class="rail-card"><div class="rail-icon next">•</div><div class="rail-text"><strong>${escapeHtml(currentOutputFormat().toUpperCase())} export</strong><span>${escapeHtml(el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml'))}</span></div></div>`;
+}
+function flattenXml(node, path = '', rows = []) {
+  if (!node) return rows;
+  const current = path ? `${path}/${stripNamespace(node.nodeName)}` : stripNamespace(node.nodeName);
+  const directText = getDirectText(node);
+  if (directText) rows.push([current, cleanValue(directText)]);
+  for (const attr of Array.from(node.attributes || [])) rows.push([`${current}/@${stripNamespace(attr.name)}`, cleanValue(attr.value)]);
+  Array.from(node.children || []).forEach(child => flattenXml(child, current, rows));
+  return rows;
+}
+function uniqueRows(rows) {
+  const seen = new Set();
+  return rows.filter(([label, value]) => {
+    const key = `${label}:::${value}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+function buildSectionHtml(title, rows) {
+  return `<section class="template-section"><h3>${escapeHtml(title)}</h3><div class="template-grid">${rows.map(([label, value]) => `<div class="field-card"><div class="field-label">${escapeHtml(label)}</div><div class="field-value ${String(value).trim() === 'Not provided' ? 'muted' : ''}">${escapeHtml(value)}</div></div>`).join('')}</div></section>`;
+}
+function gatherTemplateData() {
+  const template = getSelectedTemplate();
+  const title = el.reportTitle.value.trim() || template.documentTitle;
+  const rawRows = state.xmlDoc ? uniqueRows(flattenXml(state.xmlDoc.documentElement)) : [];
+  if (state.detectedFormat === 'DubliNet TakeChargeRequestForm') {
+    const annex = extractDublinetAnnexII(state.xmlDoc);
+    const sections = [
+      { title: 'Personal and business data', rows: annex.personalBusinessData },
+      { title: template.sectionTitle || 'Request details', rows: annex.requestBasedOn },
+      { title: 'Transmission and signature summary', rows: annex.transmissionSummary },
+      { title: 'Detected XML fields', rows: rawRows.length ? rawRows : [['No additional fields detected', 'Not provided']] },
+    ];
+    return { template, title, sections, note: 'Mandatory DubliNet fields are interpreted with the embedded official code tables. Unknown values remain visible instead of being guessed.' };
+  }
+  return {
+    template,
+    title,
+    sections: [
+      { title: template.sectionTitle || 'Detected XML fields', rows: rawRows.length ? rawRows : [['No mapped fields detected', 'The uploaded XML did not expose leaf values.']] }
+    ],
+    note: 'The uploaded XML did not match the dedicated TakeChargeRequestForm parser, so the converter rendered a generic DubliNet-style form using the detected XML leaf fields.'
+  };
+}
+function buildTemplatePreviewMarkup(bundle) {
+  return `<div class="template-preview"><div class="template-shell"><div class="template-topbar"><div class="template-brand">DubliNet · eu-LISA</div><div>Versioned template preview</div><div class="template-tools"><div class="template-tool">+</div><div class="template-tool">↓</div><div class="template-tool">⚙</div></div></div><div class="template-breadcrumb">${escapeHtml(bundle.template.breadcrumb || 'Home > Available forms')}</div><h2 class="template-title">${escapeHtml(bundle.title)}</h2><div class="template-annex">${escapeHtml(bundle.template.annex || 'DUBLINET')}</div><div class="template-rule"></div><div class="template-body"><aside class="template-rail">${buildRailCards(bundle.template)}</aside><main class="template-main"><div class="template-note">Fields marked with an asterisk in the official forms remain in the same logical order whenever the XML exposes them.</div><div class="template-callout"><div class="callout-icon">?</div><div class="callout-text"><strong>Layout note</strong><span>${escapeHtml(bundle.note)}</span></div></div>${bundle.sections.map(section => buildSectionHtml(section.title, section.rows)).join('')}</main></div><div class="template-footer"><span>${escapeHtml(bundle.template.breadcrumb || 'DubliNet')}</span><span>Preview generated from XML</span></div></div></div>`;
+}
+function renderCurrentPreview() {
+  if (!state.xmlDoc) {
+    el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`;  if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
+    return;
+  }
+  const bundle = gatherTemplateData();
+  el.preview.innerHTML = buildTemplatePreviewMarkup(bundle);
+}
+function buildStandaloneHtml(bundle) {
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>${escapeHtml(bundle.title)}</title><style>
+  body{margin:0;background:#f4f7fb;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:#0f172a;padding:24px;}
+  .wrap{max-width:1180px;margin:0 auto;background:#fff;border:1px solid #dbe3ee;border-radius:24px;box-shadow:0 20px 60px rgba(15,23,42,.08);overflow:hidden;}
+  .template-shell{padding:22px;background:linear-gradient(180deg,#f8fbff 0%,#ffffff 18%);} .template-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;color:#475569;padding-bottom:10px;border-bottom:1px solid #dbe3ee;} .template-brand{font-weight:800;color:#0f172a;} .template-tools{display:flex;gap:8px;} .template-tool{width:28px;height:28px;border:1px solid #cbd5e1;border-radius:10px;display:grid;place-items:center;background:#fff;color:#2563eb;font-weight:800;} .template-breadcrumb{margin:14px 0 8px;color:#64748b;font-size:12px;} .template-title{font-size:32px;font-weight:800;letter-spacing:-0.03em;margin:0;color:#0f172a;} .template-annex{margin-top:4px;font-size:12px;letter-spacing:.14em;color:#2563eb;font-weight:800;text-transform:uppercase;} .template-rule{margin:16px 0;border-top:1px solid #dbe3ee;} .template-body{display:grid;grid-template-columns:260px 1fr;gap:18px;} @media (max-width:900px){.template-body{grid-template-columns:1fr}} .template-rail{border-right:1px solid #e2e8f0;padding-right:16px;} @media (max-width:900px){.template-rail{border-right:0;border-bottom:1px solid #e2e8f0;padding-right:0;padding-bottom:12px}} .rail-title{font-size:12px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;} .rail-card{border:1px solid #dbe3ee;border-radius:16px;background:#fff;padding:12px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:10px;} .rail-icon{width:26px;height:26px;border-radius:999px;display:grid;place-items:center;font-size:13px;font-weight:800;color:#fff;background:#16a34a;flex:0 0 auto;} .rail-icon.current{background:#2563eb;} .rail-icon.next{background:#94a3b8;} .rail-text strong{display:block;font-size:13px;color:#0f172a;} .rail-text span{display:block;font-size:12px;color:#64748b;margin-top:2px;} .template-main{padding-left:4px;} .template-section{margin-bottom:18px;} .template-section h3{margin:0 0 10px;font-size:22px;letter-spacing:-0.02em;color:#0f172a;} .template-note{font-size:12px;color:#64748b;margin-bottom:12px;} .template-callout{display:flex;gap:10px;border:1px solid #dbe3ee;border-radius:16px;padding:12px 14px;background:#f8fafc;margin-bottom:14px;} .callout-icon{width:24px;height:24px;border-radius:999px;background:#e2e8f0;display:grid;place-items:center;color:#334155;font-weight:800;} .callout-text strong{display:block;margin-bottom:4px;} .template-grid{display:grid;gap:12px;} .field-card{border:1px solid #dbe3ee;border-radius:16px;padding:12px 14px;background:#fff;} .field-label{font-size:12px;font-weight:800;color:#334155;margin-bottom:6px;} .field-value{font-size:14px;color:#0f172a;line-height:1.55;white-space:pre-wrap;word-break:break-word;} .field-value.muted{color:#64748b;} .template-footer{display:flex;justify-content:space-between;gap:12px;font-size:11px;color:#64748b;margin-top:18px;padding-top:10px;border-top:1px solid #e2e8f0;}
+  
+    .field select {
+      width: 100%; border: 1px solid var(--line); background: white; border-radius: 12px; padding: 12px 14px; font-size: 14px; outline: none; transition: 0.15s ease; appearance: none;
+      background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
+      background-position: calc(100% - 20px) calc(50% - 3px), calc(100% - 14px) calc(50% - 3px);
+      background-size: 6px 6px, 6px 6px; background-repeat: no-repeat;
+    }
+    .field select:focus { border-color: #93c5fd; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.08); }
+    #previewContent { max-height: 620px; overflow: auto; background: #f8fafc; color: #0f172a; }
+    .template-preview { background: #fff; min-height: 520px; }
+    .template-shell { padding: 18px; background: linear-gradient(180deg, #f8fbff 0%, #ffffff 16%); }
+    .template-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; font-size:12px; color:#475569; padding-bottom:10px; border-bottom:1px solid #dbe3ee; }
+    .template-brand { font-weight:800; color:#0f172a; letter-spacing:-0.01em; }
+    .template-tools { display:flex; gap:8px; }
+    .template-tool { width:28px; height:28px; border:1px solid #cbd5e1; border-radius:10px; display:grid; place-items:center; background:#fff; color:#2563eb; font-weight:800; }
+    .template-breadcrumb { margin:14px 0 8px; color:#64748b; font-size:12px; }
+    .template-title { font-size:28px; font-weight:800; letter-spacing:-0.03em; margin:0; color:#0f172a; }
+    .template-annex { margin-top:4px; font-size:12px; letter-spacing:0.14em; color:#2563eb; font-weight:800; text-transform:uppercase; }
+    .template-rule { margin:16px 0; border-top:1px solid #dbe3ee; }
+    .template-body { display:grid; grid-template-columns: 260px 1fr; gap:18px; }
+    @media (max-width: 880px) { .template-body { grid-template-columns: 1fr; } }
+    .template-rail { border-right:1px solid #e2e8f0; padding-right:16px; }
+    @media (max-width: 880px) { .template-rail { border-right:0; border-bottom:1px solid #e2e8f0; padding-right:0; padding-bottom:12px; } }
+    .rail-title { font-size:12px; font-weight:800; color:#64748b; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+    .rail-card { border:1px solid #dbe3ee; border-radius:16px; background:#fff; padding:12px 14px; display:flex; gap:10px; align-items:flex-start; margin-bottom:10px; }
+    .rail-icon { width:26px; height:26px; border-radius:999px; display:grid; place-items:center; font-size:13px; font-weight:800; color:white; background:#16a34a; flex:0 0 auto; }
+    .rail-icon.current { background:#2563eb; }
+    .rail-icon.next { background:#94a3b8; }
+    .rail-text strong { display:block; font-size:13px; color:#0f172a; }
+    .rail-text span { display:block; font-size:12px; color:#64748b; margin-top:2px; }
+    .template-main { padding-left:4px; }
+    .template-section { margin-bottom:18px; }
+    .template-section h3 { margin:0 0 10px; font-size:22px; letter-spacing:-0.02em; color:#0f172a; }
+    .template-note { font-size:12px; color:#64748b; margin-bottom:12px; }
+    .template-callout { display:flex; gap:10px; border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#f8fafc; margin-bottom:14px; }
+    .callout-icon { width:24px; height:24px; border-radius:999px; background:#e2e8f0; display:grid; place-items:center; color:#334155; font-weight:800; }
+    .callout-text strong { display:block; margin-bottom:4px; }
+    .template-grid { display:grid; gap:12px; }
+    .field-card { border:1px solid #dbe3ee; border-radius:16px; padding:12px 14px; background:#fff; }
+    .field-label { font-size:12px; font-weight:800; color:#334155; text-transform:none; margin-bottom:6px; }
+    .field-value { font-size:14px; color:#0f172a; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+    .field-value.muted { color:#64748b; }
+    .template-footer { display:flex; justify-content:space-between; gap:12px; font-size:11px; color:#64748b; margin-top:18px; padding-top:10px; border-top:1px solid #e2e8f0; }
+    .raw-preview { margin:0; padding:16px; background:#0f172a; color:#e2e8f0; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
+
+  </style></head><body><div class="wrap">${buildTemplatePreviewMarkup(bundle)}</div></body></html>`;
+}
+function downloadBlobContent(blob, fileName) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 
 const ANNEX_FIELDS = {
   personalBusinessData: [
@@ -231,6 +534,8 @@ const el = {
   fileMeta: document.getElementById('fileMeta'),
   reportTitle: document.getElementById('reportTitle'),
   outputName: document.getElementById('outputName'),
+  templateChoice: document.getElementById('templateChoice'),
+  outputFormat: document.getElementById('outputFormat'),
   includeStats: document.getElementById('includeStats'),
   includeTech: document.getElementById('includeTech'),
   includeRawXml: document.getElementById('includeRawXml'),
@@ -239,6 +544,7 @@ const el = {
   resetBtn: document.getElementById('resetBtn'),
   status: document.getElementById('status'),
   preview: document.getElementById('previewContent'),
+  previewHead: document.getElementById('previewHead'),
   statLib: document.getElementById('statLib'),
   statFormat: document.getElementById('statFormat'),
   statRoot: document.getElementById('statRoot'),
@@ -250,7 +556,7 @@ const el = {
 function showStatus(message, type = 'info') { el.status.className = `status show ${type}`; el.status.textContent = message; }
 function clearStatus() { el.status.className = 'status'; el.status.textContent = ''; }
 function setLibStatus(text) { el.statLib.textContent = text; }
-function updateButtons() { el.previewBtn.disabled = !state.xmlDoc; el.convertBtn.disabled = !(state.docxReady && state.xmlDoc); }
+function updateButtons() { el.previewBtn.disabled = !state.xmlDoc; el.convertBtn.disabled = !state.xmlDoc || (docxNeeded() && !state.docxReady); }
 function formatBytes(bytes) { if (bytes === 0) return '0 B'; if (!bytes) return '—'; const units = ['B','KB','MB','GB']; const i = Math.floor(Math.log(bytes) / Math.log(1024)); return `${(bytes / Math.pow(1024, i)).toFixed(2)} ${units[i]}`; }
 function baseName(filename) { return filename.replace(/\.[^/.]+$/, ''); }
 function sanitizeFileName(name) { return name.replace(/[<>:"/\\|?*]+/g, '').trim(); }
@@ -458,19 +764,7 @@ function buildGenericPreview(node, level = 0) {
   Array.from(node.children).forEach(child => lines.push(buildGenericPreview(child, level + 1)));
   return lines.join('\n');
 }
-function buildAnnexPreview(data) {
-  const section = (title, rows) => [title, ...rows.map(([label, value]) => `- ${label}: ${value}`)].join('\n');
-  return [
-    'Standard form for the submission of a take charge request',
-    'ANNEX II',
-    '',
-    section('Personal and business data', data.personalBusinessData),
-    '',
-    section('Request based on', data.requestBasedOn),
-    '',
-    section('Transmission and signature summary', data.transmissionSummary)
-  ].join('\n');
-}
+
 async function parseXmlFile(file) {
   const text = await file.text();
   const parser = new DOMParser();
@@ -492,8 +786,8 @@ async function loadSelectedFile(file) {
     const { text, parsed } = await parseXmlFile(file);
     state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement); state.detectedFormat = detectFormat(parsed.documentElement);
     el.fileMeta.innerHTML = `<strong>${file.name}</strong> · ${formatBytes(file.size)}`;
-    if (!el.reportTitle.value.trim()) el.reportTitle.value = 'Standard form for the submission of a take charge request';
-    el.outputName.value = `${baseName(file.name)}-annex-ii-report.docx`;
+    applyTemplateDefaults(true);
+    el.outputName.value = buildOutputFileName(file.name);
     el.statFormat.textContent = state.detectedFormat; el.statRoot.textContent = state.stats.rootName; el.statElements.textContent = state.stats.totalElements; el.statAttributes.textContent = state.stats.totalAttributes; el.statDepth.textContent = state.stats.maxDepth;
     el.preview.textContent = state.detectedFormat === 'DubliNet TakeChargeRequestForm' ? buildAnnexPreview(extractDublinetAnnexII(parsed)) : buildGenericPreview(parsed.documentElement);
     updateButtons();
@@ -507,10 +801,10 @@ async function loadSelectedFile(file) {
 }
 function resetAll() {
   state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
-  el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = '';
-  el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false;
+  el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = ''; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0'; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0';
+  el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false; if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true); if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true);
   el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
-  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…';
+  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`;  if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
   clearStatus(); updateButtons();
 }
 function loadScript(src) { return new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.async = true; script.onload = () => resolve(src); script.onerror = () => reject(new Error(`Failed to load ${src}`)); document.head.appendChild(script); }); }
@@ -531,74 +825,75 @@ function createSummaryTable(docxLib, rows, labelWidth = 42) {
 }
 async function generateReport() {
   if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
-  if (!state.docxReady || !window.docx) { showStatus('DOCX library is not available. Check internet access or CDN blocking and reload the page.', 'error'); return; }
+  const format = currentOutputFormat();
+  const bundle = gatherTemplateData();
+  const baseOutput = sanitizeFileName((el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml')).replace(/\.(docx|html)$/i, '')) || 'dublinet-output';
   try {
-    showStatus('Generating Word report…', 'info'); el.convertBtn.disabled = true;
-    const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
-    const title = el.reportTitle.value.trim() || 'Standard form for the submission of a take charge request';
-    const rawName = el.outputName.value.trim() || 'take-charge-request-report.docx';
-    const fileName = sanitizeFileName(rawName.endsWith('.docx') ? rawName : `${rawName}.docx`) || 'take-charge-request-report.docx';
-    const createdAt = new Date().toLocaleString();
-    const children = [];
-    children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 240, after: 80 }, children: [new TextRun({ text: title, bold: true, size: 34, color: '0F172A' })] }));
-    children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: 'ANNEX II', bold: true, size: 24, color: '1D4ED8' })] }));
-    children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 180 }, children: [new TextRun({ text: `Source File: ${state.selectedFile.name}`, italics: true, size: 20, color: '475569' })] }));
-    if (state.detectedFormat === 'DubliNet TakeChargeRequestForm') {
-      const data = extractDublinetAnnexII(state.xmlDoc);
-      const addSection = (titleText, subtitle, rows) => {
-        children.push(new Paragraph({ text: titleText, heading: HeadingLevel.HEADING_1, spacing: { before: 90, after: 60 } }));
-        if (subtitle) children.push(new Paragraph({ spacing: { after: 80 }, children: [new TextRun({ text: subtitle, color: '475569' })] }));
-        children.push(createSummaryTable(window.docx, rows));
-        children.push(new Paragraph({ text: '', spacing: { after: 90 } }));
-      };
-      addSection('Personal and business data', 'Mandatory fields are preceded by * in the original Annex II form.', data.personalBusinessData);
-      addSection('Request based on', 'Field order follows the Annex II preview and includes the visible request-related options from the form.', data.requestBasedOn);
-      if (el.includeTech.checked) addSection('Transmission and signature summary', '', data.transmissionSummary);
+    showStatus(`Generating ${format.toUpperCase()} output…`, 'info');
+    el.convertBtn.disabled = true;
+    if (format === 'html' || format === 'both') {
+      const htmlString = buildStandaloneHtml(bundle);
+      const htmlName = `${baseOutput}.html`;
+      downloadBlobContent(new Blob([htmlString], { type: 'text/html;charset=utf-8' }), htmlName);
+    }
+    if (format !== 'html') {
+      if (!state.docxReady || !window.docx) throw new Error('DOCX library is not available. Check internet access or CDN blocking and reload the page.');
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
+      const children = [];
+      children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { before: 240, after: 80 }, children: [new TextRun({ text: bundle.title, bold: true, size: 34, color: '0F172A' })] }));
+      children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 80 }, children: [new TextRun({ text: bundle.template.annex || 'DUBLINET', bold: true, size: 24, color: '1D4ED8' })] }));
+      children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: [new TextRun({ text: `Template: ${bundle.template.label}`, italics: true, size: 20, color: '475569' })] }));
+      children.push(new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 180 }, children: [new TextRun({ text: `Source File: ${state.selectedFile.name}`, italics: true, size: 18, color: '64748B' })] }));
+      bundle.sections.forEach((section, idx) => {
+        children.push(new Paragraph({ text: section.title, heading: HeadingLevel.HEADING_1, spacing: { before: idx === 0 ? 90 : 160, after: 60 } }));
+        children.push(createSummaryTable(window.docx, section.rows.length ? section.rows : [['No data', 'Not provided']]));
+        children.push(new Paragraph({ text: '', spacing: { after: 80 } }));
+      });
       if (el.includeStats.checked && state.stats) {
-        addSection('Executive summary', '', [
+        children.push(new Paragraph({ text: 'Executive summary', heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 60 } }));
+        children.push(createSummaryTable(window.docx, [
           ['Detected format', state.detectedFormat],
           ['Root element', state.stats.rootName],
           ['Total elements', state.stats.totalElements],
           ['Total attributes', state.stats.totalAttributes],
           ['Maximum depth', state.stats.maxDepth],
-          ['Generated on', createdAt],
-        ]);
+          ['Selected template', bundle.template.label],
+          ['Output format', format.toUpperCase()]
+        ]));
       }
-    } else {
-      children.push(new Paragraph({ text: 'Detailed XML Structure', heading: HeadingLevel.HEADING_1, spacing: { before: 140, after: 100 } }));
-      children.push(new Paragraph({ spacing: { after: 100 }, children: [new TextRun({ text: 'The uploaded XML was not recognized as a DubliNet TakeChargeRequestForm. A generic XML structure preview is provided instead.', color: '334155' })] }));
-      children.push(new Paragraph({ children: [new TextRun({ text: buildGenericPreview(state.xmlDoc.documentElement), font: 'Courier New', size: 18, color: '334155' })] }));
+      if (el.includeRawXml.checked && state.xmlText) {
+        children.push(new Paragraph({ text: 'Raw XML appendix', heading: HeadingLevel.HEADING_1, spacing: { before: 160, after: 60 } }));
+        state.xmlText.split(/\r?\n/).forEach(line => children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 18, font: 'Courier New' })] })));
+      }
+      const doc = new Document({ sections: [{ properties: {}, children }] });
+      const blob = await Packer.toBlob(doc);
+      downloadBlobContent(blob, `${baseOutput}.docx`);
     }
-    if (el.includeRawXml.checked) {
-      children.push(new Paragraph({ text: 'Appendix: Raw XML', heading: HeadingLevel.HEADING_1, spacing: { before: 220, after: 100 } }));
-      const serializer = new XMLSerializer();
-      const xmlString = serializer.serializeToString(state.xmlDoc);
-      const wrappedLines = xmlString.match(/.{1,110}/g) || [xmlString];
-      wrappedLines.forEach(line => children.push(new Paragraph({ spacing: { after: 18 }, children: [new TextRun({ text: line, font: 'Courier New', size: 18, color: '334155' })] })));
-    }
-    const doc = new Document({ sections: [{ properties: {}, children }] });
-    const blob = await Packer.toBlob(doc);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1500);
-    showStatus('DOCX report generated successfully. Download should start automatically.', 'success');
+    showStatus(format === 'both' ? 'DOCX and HTML outputs generated successfully. Downloads should start automatically.' : `${format.toUpperCase()} output generated successfully. Download should start automatically.`, 'success');
   } catch (err) {
     console.error(err);
-    showStatus(`Failed to generate DOCX report: ${err.message || err}`, 'error');
+    showStatus(`Failed to generate output: ${err.message || err}`, 'error');
   } finally {
     updateButtons();
   }
 }
+
 el.fileInput.addEventListener('change', e => { const file = e.target.files?.[0]; if (file) loadSelectedFile(file); });
 ['dragenter','dragover'].forEach(evt => el.dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); el.dropzone.classList.add('drag'); }));
 ['dragleave','dragend','drop'].forEach(evt => el.dropzone.addEventListener(evt, e => { e.preventDefault(); e.stopPropagation(); if (evt !== 'drop') el.dropzone.classList.remove('drag'); }));
 el.dropzone.addEventListener('drop', e => { el.dropzone.classList.remove('drag'); const file = e.dataTransfer?.files?.[0]; if (file) { el.fileInput.files = e.dataTransfer.files; loadSelectedFile(file); } });
-el.previewBtn.addEventListener('click', () => { if (!state.xmlDoc) return; el.preview.textContent = state.detectedFormat === 'DubliNet TakeChargeRequestForm' ? buildAnnexPreview(extractDublinetAnnexII(state.xmlDoc)) : buildGenericPreview(state.xmlDoc.documentElement); showStatus('Preview refreshed.', 'success'); });
+el.previewBtn.addEventListener('click', () => { if (!state.xmlDoc) return; renderCurrentPreview(); showStatus('Preview refreshed.', 'success'); });
 el.convertBtn.addEventListener('click', generateReport);
 el.resetBtn.addEventListener('click', resetAll);
 window.addEventListener('DOMContentLoaded', async () => {
+  populateTemplateOptions();
+  applyTemplateDefaults(true);
+  el.reportTitle.addEventListener('input', () => { el.reportTitle.dataset.userEdited = '1'; });
+  el.outputName.addEventListener('input', () => { el.outputName.dataset.userEdited = '1'; });
+  el.templateChoice.addEventListener('change', () => { applyTemplateDefaults(true); renderCurrentPreview(); updateButtons(); });
+  el.outputFormat.addEventListener('change', () => { el.outputName.dataset.userEdited = '0'; applyTemplateDefaults(false); updateButtons(); });
   updateButtons();
-  try { await ensureDocxLoaded(); updateButtons(); if (!state.xmlDoc) el.preview.textContent = 'Upload a valid XML file to preview its structure.'; showStatus('DOCX library loaded. Ready for XML upload.', 'success'); }
+  try { await ensureDocxLoaded(); updateButtons(); if (!state.xmlDoc) { applyTemplateDefaults(false); el.preview.textContent = 'Upload a valid XML file to preview its structure.'; } showStatus('DOCX library loaded. Ready for XML upload.', 'success'); }
   catch (err) { updateButtons(); el.preview.textContent = 'DOCX library could not be loaded. The preview still works, but DOCX export is disabled until the library becomes available.'; showStatus(`${err.message} Try reloading the page or allowing the CDN domains.`, 'warning'); }
 });
 </script>
