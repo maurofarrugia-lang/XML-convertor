@@ -411,7 +411,7 @@ function buildTemplatePreviewMarkup(bundle) {
 }
 function renderCurrentPreview() {
   if (!state.xmlDoc) {
-    el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`;  if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
+    el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
     return;
   }
   const bundle = gatherTemplateData();
@@ -789,7 +789,7 @@ async function loadSelectedFile(file) {
     applyTemplateDefaults(true);
     el.outputName.value = buildOutputFileName(file.name);
     el.statFormat.textContent = state.detectedFormat; el.statRoot.textContent = state.stats.rootName; el.statElements.textContent = state.stats.totalElements; el.statAttributes.textContent = state.stats.totalAttributes; el.statDepth.textContent = state.stats.maxDepth;
-    el.preview.textContent = state.detectedFormat === 'DubliNet TakeChargeRequestForm' ? buildAnnexPreview(extractDublinetAnnexII(parsed)) : buildGenericPreview(parsed.documentElement);
+    renderCurrentPreview();
     updateButtons();
     showStatus(state.docxReady ? 'XML loaded successfully. You can now generate the DOCX report.' : 'XML loaded successfully, but the DOCX library is still loading.', state.docxReady ? 'success' : 'warning');
   } catch (err) {
@@ -804,7 +804,7 @@ function resetAll() {
   el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = ''; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0'; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0';
   el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false; if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true); if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true);
   el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
-  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`;  if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
+  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
   clearStatus(); updateButtons();
 }
 function loadScript(src) { return new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.async = true; script.onload = () => resolve(src); script.onerror = () => reject(new Error(`Failed to load ${src}`)); document.head.appendChild(script); }); }
