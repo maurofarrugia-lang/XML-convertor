@@ -22,3 +22,11 @@ A GitHub-ready single-file HTML tool for converting DubliNet XML into **template
 ## Notes
 
 The strongest semantic mapping is still the dedicated `TakeChargeRequestForm` flow. For other XML structures, the converter falls back to a generic DubliNet-style renderer that keeps all detected XML leaf fields visible while still using the selected template shell.
+
+
+## Base64 PDF attachment handling
+
+- Detects Base64-encoded PDF payloads inside uploaded XML
+- Decodes to binary and validates the `%PDF` header
+- Re-encodes the binary PDF to Base64 without changing the PDF bytes
+- Can export a well-formed XML file with generated `<attachment>` elements containing `fileName`, `mimeType`, `encoding`, `sourcePath`, and `content`

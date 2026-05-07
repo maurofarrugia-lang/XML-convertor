@@ -238,6 +238,7 @@
           <label class="check"><input type="checkbox" id="includeStats" checked /> Include executive summary table</label>
           <label class="check"><input type="checkbox" id="includeTech" checked /> Include transmission and signature summary</label>
           <label class="check"><input type="checkbox" id="includeRawXml" /> Include raw XML appendix</label>
+          <label class="check"><input type="checkbox" id="includeAttachmentXml" checked /> Export XML with validated Base64 PDF attachment elements</label>
         </div>
 
         <div class="actions">
@@ -251,7 +252,7 @@
 
       <div class="card">
         <h2>Analysis & Preview</h2>
-        <p class="lead">Review the detected format and the selected DubliNet template rendering before exporting the final DOCX or HTML output.</p>
+        <p class="lead">Review the detected format, validated PDF attachments, and the selected DubliNet template rendering before exporting the final DOCX, HTML, and attachment-aware XML output.</p>
         <div class="stats">
           <div class="stat"><div class="label">Library status</div><div class="value" id="statLib">Loading…</div></div>
           <div class="stat"><div class="label">Detected format</div><div class="value" id="statFormat">—</div></div>
@@ -325,7 +326,15 @@ const TEMPLATE_OPTIONS = [
 function getSelectedTemplate() { return TEMPLATE_OPTIONS.find(t => t.id === el.templateChoice?.value) || TEMPLATE_OPTIONS[0]; }
 function slugifyText(value) { return String(value || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function currentOutputFormat() { return el.outputFormat?.value || 'docx'; }
-function docxNeeded() { return currentOutputFormat() !== 'html'; }
+function describeOutputTargets() {
+  const format = currentOutputFormat();
+  const targets = [];
+  if (format === 'docx' || format === 'both') targets.push('DOCX');
+  if (format === 'html' || format === 'both') targets.push('HTML');
+  if (el.includeAttachmentXml?.checked) targets.push('XML');
+  return targets.join(' + ') || 'DOCX';
+}
+function docxNeeded() { const format = currentOutputFormat(); return format === 'docx' || format === 'both'; }
 function populateTemplateOptions() {
   if (!el.templateChoice) return;
   el.templateChoice.innerHTML = TEMPLATE_OPTIONS.map(t => `<option value="${t.id}">${t.label}</option>`).join('');
@@ -354,20 +363,161 @@ function applyTemplateDefaults(forceTitle = false) {
 function escapeHtml(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
+
+function normalizeBase64Text(value) { return String(value ?? '').replace(/\s+/g, '').trim(); }
+function isLikelyBase64(value) { return !!value && value.length >= 16 && value.length % 4 === 0 && /^[A-Za-z0-9+/=]+$/.test(value); }
+function base64ToBytes(base64) {
+  const binary = atob(base64);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+  return bytes;
+}
+function bytesToBase64(bytes) {
+  let binary = '';
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) binary += String.fromCharCode(...bytes.subarray(i, i + chunk));
+  return btoa(binary);
+}
+function hasPdfHeader(bytes) { return !!bytes && bytes.length >= 4 && bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46; }
+function nodePath(node) {
+  if (!node || node.nodeType !== 1) return '/';
+  const parts = [];
+  let current = node;
+  while (current && current.nodeType === 1) {
+    const name = stripNamespace(current.nodeName);
+    let index = 1;
+    let sibling = current.previousElementSibling;
+    while (sibling) {
+      if (stripNamespace(sibling.nodeName) === name) index += 1;
+      sibling = sibling.previousElementSibling;
+    }
+    parts.unshift(`${name}[${index}]`);
+    current = current.parentElement;
+  }
+  return `/${parts.join('/')}`;
+}
+function childTextByNames(node, names) {
+  if (!node) return '';
+  const wanted = new Set(names.map(v => String(v).toLowerCase()));
+  for (const child of Array.from(node.children || [])) {
+    const key = stripNamespace(child.nodeName).toLowerCase();
+    if (wanted.has(key)) return normalizeWs(child.textContent || '');
+  }
+  return '';
+}
+function guessPdfFileName(node, index) {
+  const attrNames = ['filename', 'fileName', 'name', 'documentname', 'attachmentname'];
+  for (const attr of Array.from(node?.attributes || [])) {
+    if (attrNames.includes(stripNamespace(attr.name).toLowerCase())) {
+      const named = sanitizeFileName(normalizeWs(attr.value || ''));
+      if (named) return /\.pdf$/i.test(named) ? named : `${named}.pdf`;
+    }
+  }
+  const siblingValue = childTextByNames(node, ['FileName', 'Filename', 'DocumentFileName', 'AttachmentFileName', 'Name']) || childTextByNames(node?.parentElement, ['FileName', 'Filename', 'DocumentFileName', 'AttachmentFileName', 'Name']);
+  if (siblingValue) {
+    const named = sanitizeFileName(siblingValue);
+    if (named) return /\.pdf$/i.test(named) ? named : `${named}.pdf`;
+  }
+  const stem = slugifyText(stripNamespace(node?.nodeName || 'attachment')) || 'attachment';
+  return `${stem}-${index}.pdf`;
+}
+function inspectPdfBase64Candidate(rawValue, node, index) {
+  const normalized = normalizeBase64Text(rawValue);
+  if (!isLikelyBase64(normalized)) return null;
+  try {
+    const bytes = base64ToBytes(normalized);
+    if (!hasPdfHeader(bytes)) return null;
+    const base64 = bytesToBase64(bytes);
+    return {
+      fileName: guessPdfFileName(node, index),
+      mimeType: 'application/pdf',
+      encoding: 'base64',
+      base64,
+      size: bytes.length,
+      sourcePath: nodePath(node)
+    };
+  } catch (err) {
+    return null;
+  }
+}
+function extractPdfAttachmentsFromXml(xmlDoc) {
+  if (!xmlDoc?.documentElement) return [];
+  const results = [];
+  const seen = new Set();
+  for (const node of Array.from(xmlDoc.getElementsByTagName('*'))) {
+    const directText = getDirectText(node);
+    if (directText) {
+      const candidate = inspectPdfBase64Candidate(directText, node, results.length + 1);
+      if (candidate) {
+        const key = `${candidate.sourcePath}::text`;
+        if (!seen.has(key)) { results.push(candidate); seen.add(key); }
+      }
+    }
+    for (const attr of Array.from(node.attributes || [])) {
+      const candidate = inspectPdfBase64Candidate(attr.value, node, results.length + 1);
+      if (candidate) {
+        candidate.sourcePath = `${candidate.sourcePath}/@${stripNamespace(attr.name)}`;
+        const key = `${candidate.sourcePath}::attr`;
+        if (!seen.has(key)) { results.push(candidate); seen.add(key); }
+      }
+    }
+  }
+  return results;
+}
+function previewValue(value, node, index) {
+  const pdf = inspectPdfBase64Candidate(value, node, index);
+  if (pdf) return `[Validated Base64 PDF · ${pdf.fileName} · ${formatBytes(pdf.size)} · ${pdf.sourcePath}]`;
+  const cleaned = cleanValue(value);
+  return cleaned.length > 220 ? `${cleaned.slice(0, 217)}…` : cleaned;
+}
+function buildXmlAttachmentOutput() {
+  if (!state.xmlText) throw new Error('No XML file is loaded.');
+  const parser = new DOMParser();
+  const working = parser.parseFromString(state.xmlText, 'application/xml');
+  if (working.getElementsByTagName('parsererror').length) throw new Error('The source XML is not valid and cannot be exported.');
+  const attachments = extractPdfAttachmentsFromXml(working);
+  const container = working.createElement('generatedAttachments');
+  container.setAttribute('count', String(attachments.length));
+  attachments.forEach((attachment) => {
+    const attachmentEl = working.createElement('attachment');
+    const fileNameEl = working.createElement('fileName');
+    fileNameEl.textContent = attachment.fileName;
+    const mimeTypeEl = working.createElement('mimeType');
+    mimeTypeEl.textContent = attachment.mimeType;
+    const encodingEl = working.createElement('encoding');
+    encodingEl.textContent = attachment.encoding;
+    const sourcePathEl = working.createElement('sourcePath');
+    sourcePathEl.textContent = attachment.sourcePath;
+    const contentEl = working.createElement('content');
+    contentEl.textContent = attachment.base64;
+    attachmentEl.appendChild(fileNameEl);
+    attachmentEl.appendChild(mimeTypeEl);
+    attachmentEl.appendChild(encodingEl);
+    attachmentEl.appendChild(sourcePathEl);
+    attachmentEl.appendChild(contentEl);
+    container.appendChild(attachmentEl);
+  });
+  working.documentElement.appendChild(container);
+  const xmlString = `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(working)}`;
+  const reparsed = parser.parseFromString(xmlString, 'application/xml');
+  if (reparsed.getElementsByTagName('parsererror').length) throw new Error('Generated XML attachment output is not well formed.');
+  return { xmlString, attachments };
+}
+
 function buildRailCards(template) {
   return `
     <div class="rail-title">Previous parts</div>
     <div class="rail-card"><div class="rail-icon">✓</div><div class="rail-text"><strong>Source XML</strong><span>${escapeHtml(state.selectedFile?.name || 'Uploaded file')}</span></div></div>
     <div class="rail-card"><div class="rail-icon current">✎</div><div class="rail-text"><strong>Current template</strong><span>${escapeHtml(template.sectionTitle || template.label)}</span></div></div>
     <div class="rail-title" style="margin-top:14px;">Next part</div>
-    <div class="rail-card"><div class="rail-icon next">•</div><div class="rail-text"><strong>${escapeHtml(currentOutputFormat().toUpperCase())} export</strong><span>${escapeHtml(el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml'))}</span></div></div>`;
+    <div class="rail-card"><div class="rail-icon next">•</div><div class="rail-text"><strong>${escapeHtml(describeOutputTargets())} export</strong><span>${escapeHtml(el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml'))}</span></div></div>`;
 }
 function flattenXml(node, path = '', rows = []) {
   if (!node) return rows;
   const current = path ? `${path}/${stripNamespace(node.nodeName)}` : stripNamespace(node.nodeName);
   const directText = getDirectText(node);
-  if (directText) rows.push([current, cleanValue(directText)]);
-  for (const attr of Array.from(node.attributes || [])) rows.push([`${current}/@${stripNamespace(attr.name)}`, cleanValue(attr.value)]);
+  if (directText) rows.push([current, previewValue(directText, node, rows.length + 1)]);
+  for (const attr of Array.from(node.attributes || [])) rows.push([`${current}/@${stripNamespace(attr.name)}`, previewValue(attr.value, node, rows.length + 1)]);
   Array.from(node.children || []).forEach(child => flattenXml(child, current, rows));
   return rows;
 }
@@ -387,23 +537,28 @@ function gatherTemplateData() {
   const template = getSelectedTemplate();
   const title = el.reportTitle.value.trim() || template.documentTitle;
   const rawRows = state.xmlDoc ? uniqueRows(flattenXml(state.xmlDoc.documentElement)) : [];
+  const attachmentRows = state.pdfAttachments?.length
+    ? state.pdfAttachments.map((item, index) => [`Validated PDF ${index}`, `${item.fileName} · ${item.mimeType} · ${item.encoding} · ${formatBytes(item.size)} · ${item.sourcePath}`])
+    : [['Validated PDF attachments', 'No Base64 PDF attachment detected in the XML.']];
   if (state.detectedFormat === 'DubliNet TakeChargeRequestForm') {
     const annex = extractDublinetAnnexII(state.xmlDoc);
     const sections = [
       { title: 'Personal and business data', rows: annex.personalBusinessData },
       { title: template.sectionTitle || 'Request details', rows: annex.requestBasedOn },
       { title: 'Transmission and signature summary', rows: annex.transmissionSummary },
+      { title: 'Validated PDF attachments', rows: attachmentRows },
       { title: 'Detected XML fields', rows: rawRows.length ? rawRows : [['No additional fields detected', 'Not provided']] },
     ];
-    return { template, title, sections, note: 'Mandatory DubliNet fields are interpreted with the embedded official code tables. Unknown values remain visible instead of being guessed.' };
+    return { template, title, sections, note: 'Mandatory DubliNet fields are interpreted with the embedded official code tables. Base64 PDF payloads are decoded, checked for a valid %PDF header, re-encoded without changing their binary content, and prepared for XML attachment export.' };
   }
   return {
     template,
     title,
     sections: [
+      { title: 'Validated PDF attachments', rows: attachmentRows },
       { title: template.sectionTitle || 'Detected XML fields', rows: rawRows.length ? rawRows : [['No mapped fields detected', 'The uploaded XML did not expose leaf values.']] }
     ],
-    note: 'The uploaded XML did not match the dedicated TakeChargeRequestForm parser, so the converter rendered a generic DubliNet-style form using the detected XML leaf fields.'
+    note: 'The uploaded XML did not match the dedicated TakeChargeRequestForm parser, so the converter rendered a generic DubliNet-style form using the detected XML leaf fields. Any Base64 PDF payloads are still validated and prepared for XML attachment export.'
   };
 }
 function buildTemplatePreviewMarkup(bundle) {
@@ -527,7 +682,7 @@ const NOTE_FALLBACKS = {
   'A request for an urgent reply where the application for international protection was registered after a decision to refuse entry or a return decision was issued in accordance with article 39 (2) regulation (eu) 2024/1351': 'Informational note shown in the Annex II form preview; no separate XML value was detected.'
 };
 
-const state = { docxReady: false, selectedFile: null, xmlDoc: null, xmlText: '', stats: null, detectedFormat: '—' };
+const state = { docxReady: false, selectedFile: null, xmlDoc: null, xmlText: '', stats: null, detectedFormat: '—', pdfAttachments: [] };
 const el = {
   fileInput: document.getElementById('xmlFile'),
   dropzone: document.getElementById('dropzone'),
@@ -539,6 +694,7 @@ const el = {
   includeStats: document.getElementById('includeStats'),
   includeTech: document.getElementById('includeTech'),
   includeRawXml: document.getElementById('includeRawXml'),
+  includeAttachmentXml: document.getElementById('includeAttachmentXml'),
   previewBtn: document.getElementById('previewBtn'),
   convertBtn: document.getElementById('convertBtn'),
   resetBtn: document.getElementById('resetBtn'),
@@ -775,7 +931,7 @@ async function parseXmlFile(file) {
 async function loadSelectedFile(file) {
   clearStatus();
   if (!isXmlFile(file)) {
-    state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
+    state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—'; state.pdfAttachments = [];
     el.fileMeta.textContent = 'No valid XML file selected';
     el.preview.textContent = 'Please upload a valid XML file.';
     el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
@@ -784,27 +940,28 @@ async function loadSelectedFile(file) {
   try {
     el.preview.textContent = 'Reading and validating XML…';
     const { text, parsed } = await parseXmlFile(file);
-    state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement); state.detectedFormat = detectFormat(parsed.documentElement);
+    state.selectedFile = file; state.xmlDoc = parsed; state.xmlText = text; state.stats = analyzeXml(parsed.documentElement); state.detectedFormat = detectFormat(parsed.documentElement); state.pdfAttachments = extractPdfAttachmentsFromXml(parsed);
     el.fileMeta.innerHTML = `<strong>${file.name}</strong> · ${formatBytes(file.size)}`;
     applyTemplateDefaults(true);
     el.outputName.value = buildOutputFileName(file.name);
     el.statFormat.textContent = state.detectedFormat; el.statRoot.textContent = state.stats.rootName; el.statElements.textContent = state.stats.totalElements; el.statAttributes.textContent = state.stats.totalAttributes; el.statDepth.textContent = state.stats.maxDepth;
     renderCurrentPreview();
     updateButtons();
-    showStatus(state.docxReady ? 'XML loaded successfully. You can now generate the DOCX report.' : 'XML loaded successfully, but the DOCX library is still loading.', state.docxReady ? 'success' : 'warning');
+    const attachmentMessage = state.pdfAttachments.length ? ` ${state.pdfAttachments.length} Base64 PDF attachment(s) validated for XML export.` : ' No Base64 PDF attachment was detected.';
+    showStatus((state.docxReady ? 'XML loaded successfully.' : 'XML loaded successfully, but the DOCX library is still loading.') + attachmentMessage, state.docxReady ? 'success' : 'warning');
   } catch (err) {
-    state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
+    state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—'; state.pdfAttachments = [];
     el.fileMeta.textContent = 'No valid XML file selected'; el.preview.textContent = 'Upload a valid XML file to preview its structure.';
     el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
     updateButtons(); showStatus(err.message || 'Failed to parse XML.', 'error');
   }
 }
 function resetAll() {
-  state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—';
-  el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = ''; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0'; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0';
-  el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false; if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true); if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true);
+  state.selectedFile = null; state.xmlDoc = null; state.xmlText = ''; state.stats = null; state.detectedFormat = '—'; state.pdfAttachments = [];
+  el.fileInput.value = ''; el.fileMeta.textContent = 'No file selected'; el.reportTitle.value = ''; el.outputName.value = ''; el.reportTitle.dataset.userEdited = '0'; el.outputName.dataset.userEdited = '0';
+  el.includeStats.checked = true; el.includeTech.checked = true; el.includeRawXml.checked = false; if (el.includeAttachmentXml) el.includeAttachmentXml.checked = true; if (el.outputFormat) el.outputFormat.value = 'docx'; populateTemplateOptions(); applyTemplateDefaults(true);
   el.statFormat.textContent = '—'; el.statRoot.textContent = '—'; el.statElements.textContent = '0'; el.statAttributes.textContent = '0'; el.statDepth.textContent = '0';
-  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`; 
+  el.preview.textContent = state.docxReady ? 'Upload a valid XML file to preview its structure.' : 'Loading DOCX library…'; if (el.previewHead) el.previewHead.textContent = `${getSelectedTemplate().label} preview`;
   clearStatus(); updateButtons();
 }
 function loadScript(src) { return new Promise((resolve, reject) => { const script = document.createElement('script'); script.src = src; script.async = true; script.onload = () => resolve(src); script.onerror = () => reject(new Error(`Failed to load ${src}`)); document.head.appendChild(script); }); }
@@ -827,16 +984,24 @@ async function generateReport() {
   if (!state.xmlDoc) { showStatus('Please upload a valid XML file first.', 'error'); return; }
   const format = currentOutputFormat();
   const bundle = gatherTemplateData();
-  const baseOutput = sanitizeFileName((el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml')).replace(/\.(docx|html)$/i, '')) || 'dublinet-output';
+  const baseOutput = sanitizeFileName((el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml')).replace(/\.(docx|html|xml)$/i, '')) || 'dublinet-output';
+  const xmlRequested = !!el.includeAttachmentXml?.checked;
+  let xmlExportCount = 0;
+  let xmlAttachmentCount = 0;
   try {
-    showStatus(`Generating ${format.toUpperCase()} output…`, 'info');
+    showStatus(`Generating ${describeOutputTargets()} output…`, 'info');
     el.convertBtn.disabled = true;
     if (format === 'html' || format === 'both') {
       const htmlString = buildStandaloneHtml(bundle);
-      const htmlName = `${baseOutput}.html`;
-      downloadBlobContent(new Blob([htmlString], { type: 'text/html;charset=utf-8' }), htmlName);
+      downloadBlobContent(new Blob([htmlString], { type: 'text/html;charset=utf-8' }), `${baseOutput}.html`);
     }
-    if (format !== 'html') {
+    if (xmlRequested) {
+      const xmlOutput = buildXmlAttachmentOutput();
+      xmlAttachmentCount = xmlOutput.attachments.length;
+      downloadBlobContent(new Blob([xmlOutput.xmlString], { type: 'application/xml;charset=utf-8' }), `${baseOutput}-attachments.xml`);
+      xmlExportCount = 1;
+    }
+    if (format === 'docx' || format === 'both') {
       if (!state.docxReady || !window.docx) throw new Error('DOCX library is not available. Check internet access or CDN blocking and reload the page.');
       const { Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType } = window.docx;
       const children = [];
@@ -858,7 +1023,8 @@ async function generateReport() {
           ['Total attributes', state.stats.totalAttributes],
           ['Maximum depth', state.stats.maxDepth],
           ['Selected template', bundle.template.label],
-          ['Output format', format.toUpperCase()]
+          ['Output targets', describeOutputTargets()],
+          ['Validated PDF attachments', String(state.pdfAttachments.length)]
         ]));
       }
       if (el.includeRawXml.checked && state.xmlText) {
@@ -869,7 +1035,8 @@ async function generateReport() {
       const blob = await Packer.toBlob(doc);
       downloadBlobContent(blob, `${baseOutput}.docx`);
     }
-    showStatus(format === 'both' ? 'DOCX and HTML outputs generated successfully. Downloads should start automatically.' : `${format.toUpperCase()} output generated successfully. Download should start automatically.`, 'success');
+    const xmlSummary = xmlExportCount ? ` XML export created with ${xmlAttachmentCount} validated PDF attachment(s).` : '';
+    showStatus(`${describeOutputTargets()} output generated successfully. Download should start automatically.${xmlSummary}`, 'success');
   } catch (err) {
     console.error(err);
     showStatus(`Failed to generate output: ${err.message || err}`, 'error');
@@ -891,7 +1058,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   el.reportTitle.addEventListener('input', () => { el.reportTitle.dataset.userEdited = '1'; });
   el.outputName.addEventListener('input', () => { el.outputName.dataset.userEdited = '1'; });
   el.templateChoice.addEventListener('change', () => { applyTemplateDefaults(true); renderCurrentPreview(); updateButtons(); });
-  el.outputFormat.addEventListener('change', () => { el.outputName.dataset.userEdited = '0'; applyTemplateDefaults(false); updateButtons(); });
+  el.outputFormat.addEventListener('change', () => { el.outputName.dataset.userEdited = '0'; applyTemplateDefaults(false); renderCurrentPreview(); updateButtons(); });
+  if (el.includeAttachmentXml) el.includeAttachmentXml.addEventListener('change', () => { renderCurrentPreview(); updateButtons(); });
   updateButtons();
   try { await ensureDocxLoaded(); updateButtons(); if (!state.xmlDoc) { applyTemplateDefaults(false); el.preview.textContent = 'Upload a valid XML file to preview its structure.'; } showStatus('DOCX library loaded. Ready for XML upload.', 'success'); }
   catch (err) { updateButtons(); el.preview.textContent = 'DOCX library could not be loaded. The preview still works, but DOCX export is disabled until the library becomes available.'; showStatus(`${err.message} Try reloading the page or allowing the CDN domains.`, 'warning'); }
