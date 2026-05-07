@@ -8,7 +8,7 @@ The converter reads DubliNet XML files, applies embedded DubliNet code-table map
 
 Supported output targets:
 - DOCX report output
-- Styled HTML output
+- Styled HTML output that also opens as a rendered preview in a new browser tab when generated
 - XML output with generated attachment elements for validated Base64 PDF payloads
 
 ## Main features

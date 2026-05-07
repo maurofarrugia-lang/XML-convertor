@@ -726,6 +726,16 @@ function downloadBlobContent(blob, fileName) {
   a.href = url; a.download = fileName; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1500);
 }
+function openHtmlPreviewBlob(blob) {
+  try {
+    const url = URL.createObjectURL(blob);
+    const win = window.open(url, '_blank', 'noopener');
+    setTimeout(() => URL.revokeObjectURL(url), 15000);
+    return !!win;
+  } catch (err) {
+    return false;
+  }
+}
 
 
 const ANNEX_FIELDS = {
@@ -1150,9 +1160,12 @@ async function generateReport() {
   try {
     showStatus(`Generating ${describeOutputTargets()} output…`, 'info');
     el.convertBtn.disabled = true;
+    let htmlPreviewOpened = false;
     if (format === 'html' || format === 'both') {
       const htmlString = buildStandaloneHtml(bundle);
-      downloadBlobContent(new Blob([htmlString], { type: 'text/html;charset=utf-8' }), `${baseOutput}.html`);
+      const htmlBlob = new Blob([htmlString], { type: 'text/html;charset=utf-8' });
+      htmlPreviewOpened = openHtmlPreviewBlob(htmlBlob);
+      downloadBlobContent(htmlBlob, `${baseOutput}.html`);
     }
     let xmlOutput = null;
     if (xmlRequested) {
@@ -1201,9 +1214,10 @@ async function generateReport() {
       const blob = await Packer.toBlob(doc);
       downloadBlobContent(blob, `${baseOutput}.docx`);
     }
+    const htmlSummary = (format === 'html' || format === 'both') ? (htmlPreviewOpened ? ' HTML preview opened in a new tab.' : ' HTML file downloaded; if no preview tab opened, allow pop-ups and open the saved .html file in a browser.') : '';
     const xmlSummary = xmlExportCount ? ` XML export created with ${xmlAttachmentCount} validated PDF attachment(s).` : '';
     const pdfSummary = extractedPdfCount ? ` Extracted ${extractedPdfCount} PDF file(s) as separate downloads.` : '';
-    showStatus(`${describeOutputTargets()} output generated successfully. Download should start automatically.${xmlSummary}${pdfSummary}`, 'success');
+    showStatus(`${describeOutputTargets()} output generated successfully. Download should start automatically.${htmlSummary}${xmlSummary}${pdfSummary}`, 'success');
   } catch (err) {
     console.error(err);
     showStatus(`Failed to generate output: ${err.message || err}`, 'error');
