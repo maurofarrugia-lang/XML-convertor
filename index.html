@@ -182,6 +182,34 @@
     .template-footer { display:flex; justify-content:space-between; gap:12px; font-size:11px; color:#64748b; margin-top:18px; padding-top:10px; border-top:1px solid #e2e8f0; }
     .raw-preview { margin:0; padding:16px; background:#0f172a; color:#e2e8f0; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
 
+  
+    .readme-modal[hidden] { display: none !important; }
+    .readme-modal {
+      position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+      background: rgba(15, 23, 42, 0.56); padding: 24px;
+    }
+    .readme-dialog {
+      width: min(920px, 96vw); max-height: 88vh; overflow: hidden;
+      background: rgba(255,255,255,0.98); border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 22px; box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22); display: flex; flex-direction: column;
+    }
+    .readme-top {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 18px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+    .readme-top h3 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
+    .readme-body { overflow: auto; padding: 22px 22px 28px; background: #fff; }
+    .readme-content { color: var(--text); line-height: 1.75; }
+    .readme-content h1, .readme-content h2, .readme-content h3 { margin: 0 0 12px; letter-spacing: -0.02em; }
+    .readme-content h1 { font-size: 28px; }
+    .readme-content h2 { font-size: 22px; margin-top: 18px; }
+    .readme-content h3 { font-size: 18px; margin-top: 14px; }
+    .readme-content p { margin: 0 0 12px; color: #334155; }
+    .readme-content ul { margin: 0 0 14px 22px; padding: 0; color: #334155; }
+    .readme-content li { margin: 0 0 6px; }
+    .readme-content code { background: #eff6ff; color: #1d4ed8; border-radius: 8px; padding: 2px 6px; font-size: 0.95em; }
+    .readme-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
   </style>
 </head>
 <body>
@@ -244,10 +272,12 @@
         <div class="actions">
           <button class="secondary" id="previewBtn" disabled>Refresh Preview</button>
           <button class="primary" id="convertBtn" disabled>Generate Output</button>
+          <button class="secondary" id="readmeBtn" type="button">Read README</button>
           <button class="secondary" id="resetBtn">Reset</button>
         </div>
 
         <div class="status" id="status"></div>
+        <input type="file" id="readmeFile" accept=".md,.markdown,.txt,text/markdown,text/plain" style="display:none" />
       </div>
 
       <div class="card">
@@ -271,6 +301,22 @@
       </div>
     </div>
   </div>
+
+  <div class="readme-modal" id="readmeModal" hidden>
+    <div class="readme-dialog" role="dialog" aria-modal="true" aria-labelledby="readmeTitle">
+      <div class="readme-top">
+        <h3 id="readmeTitle">README</h3>
+        <div class="readme-actions">
+          <button class="secondary" id="uploadReadmeBtn" type="button">Load README File</button>
+          <button class="secondary" id="closeReadmeBtn" type="button">Close</button>
+        </div>
+      </div>
+      <div class="readme-body">
+        <div class="readme-content" id="readmeContent"></div>
+      </div>
+    </div>
+  </div>
+
 
   <script>
 const CODE_TABLES = {"CT02_NATIONALITY":{"0001":{"label":"AFGHANISTAN","version":"1"},"0002":{"label":"ALBANIA","version":"1"},"0003":{"label":"ALGERIA","version":"1"},"0004":{"label":"AMERICAN SAMOA","version":"1"},"0005":{"label":"ANDORRA","version":"1"},"0006":{"label":"ANGOLA","version":"1"},"0007":{"label":"ANGUILLA","version":"1"},"0008":{"label":"ANTIGUA AND BARBUDA","version":"1"},"0009":{"label":"ARGENTINA","version":"1"},"0010":{"label":"ARMENIA","version":"1"},"0011":{"label":"ARUBA","version":"1"},"0012":{"label":"ASCENSION ISLAND","version":"1"},"0013":{"label":"AUSTRALIA","version":"1"},"0014":{"label":"AUSTRIA","version":"1"},"0015":{"label":"AZERBAIJAN","version":"1"},"0016":{"label":"BAHAMAS","version":"1"},"0017":{"label":"BAHRAIN","version":"1"},"0018":{"label":"BANGLADESH","version":"1"},"0019":{"label":"BARBADOS","version":"1"},"0020":{"label":"BELARUS","version":"1"},"0021":{"label":"BELGIUM","version":"1"},"0022":{"label":"BELIZE","version":"1"},"0023":{"label":"BENIN","version":"1"},"0024":{"label":"BERMUDA","version":"1"},"0025":{"label":"BHUTAN","version":"1"},"0026":{"label":"BOLIVIA, PLURINATIONAL STATE OF","version":"1"},"0027":{"label":"BOSNIA AND HERZEGOVINA","version":"1"},"0028":{"label":"BOTSWANA","version":"1"},"0029":{"label":"BRAZIL","version":"1"},"0030":{"label":"BRITISH INDIAN OCEAN TERRITORY","version":"1"},"0031":{"label":"BRUNEI DARUSSALAM","version":"1"},"0032":{"label":"BULGARIA","version":"1"},"0033":{"label":"BURKINA FASO","version":"1"},"0034":{"label":"BURMA","version":"1"},"0035":{"label":"BURUNDI","version":"1"},"0036":{"label":"CAMBODIA","version":"1"},"0037":{"label":"CAMEROON","version":"1"},"0038":{"label":"CANADA","version":"1"},"0039":{"label":"CAPE VERDE","version":"1"},"0040":{"label":"CAYMAN ISLANDS","version":"1"},"0041":{"label":"CENTRAL AFRICAN REPUBLIC","version":"1"},"0042":{"label":"CHAD","version":"1"},"0043":{"label":"CHILE","version":"1"},"0044":{"label":"CHINA","version":"1"},"0045":{"label":"COLOMBIA","version":"1"},"0046":{"label":"COMOROS","version":"1"},"0047":{"label":"CONGO","version":"1"},"0048":{"label":"CONGO, THE DEMOCRATIC REPUBLIC OF THE","version":"1"},"0049":{"label":"COOK ISLANDS","version":"1"},"0050":{"label":"COSTA RICA","version":"1"},"0051":{"label":"CÔTE D'IVOIRE","version":"1"},"0052":{"label":"CROATIA","version":"1"},"0053":{"label":"CUBA","version":"1"},"0054":{"label":"CYPRUS","version":"1"},"0055":{"label":"CZECH REPUBLIC","version":"1"},"0056":{"label":"DENMARK","version":"1"},"0057":{"label":"DIEGO GARCIA","version":"1"},"0058":{"label":"DJIBOUTI","version":"1"},"0059":{"label":"DOMINICA","version":"1"},"0060":{"label":"DOMINICAN REPUBLIC","version":"1"},"0061":{"label":"EAST TIMOR","version":"1"},"0062":{"label":"ECUADOR","version":"1"},"0063":{"label":"EGYPT","version":"1"},"0064":{"label":"EL SALVADOR","version":"1"},"0065":{"label":"EQUATORIAL GUINEA","version":"1"},"0066":{"label":"ERITREA","version":"1"},"0067":{"label":"ESTONIA","version":"1"},"0068":{"label":"ETHIOPIA","version":"1"},"0069":{"label":"FALKLAND ISLANDS (MALVINAS)","version":"1"},"0070":{"label":"FAROE ISLANDS","version":"1"},"0071":{"label":"FIJI","version":"1"},"0072":{"label":"FINLAND","version":"1"},"0073":{"label":"FRANCE","version":"1"},"0074":{"label":"FRENCH GUIANA","version":"1"},"0075":{"label":"FRENCH POLYNESIA","version":"1"},"0076":{"label":"FRENCH SOUTHERN TERRITORIES","version":"1"},"0077":{"label":"GABON","version":"1"},"0078":{"label":"GAMBIA","version":"1"},"0079":{"label":"GEORGIA","version":"1"},"0080":{"label":"GERMANY","version":"1"},"0081":{"label":"GHANA","version":"1"},"0082":{"label":"GREECE","version":"1"},"0083":{"label":"GRENADA","version":"1"},"0084":{"label":"GUAM","version":"1"},"0085":{"label":"GUATEMALA","version":"1"},"0086":{"label":"GUINEA","version":"1"},"0087":{"label":"GUINEA-BISSAU","version":"1"},"0088":{"label":"GUYANA","version":"1"},"0089":{"label":"HAITI","version":"1"},"0090":{"label":"HOLY SEE (VATICAN CITY STATE)","version":"1"},"0091":{"label":"HONDURAS","version":"1"},"0092":{"label":"HONG KONG","version":"1"},"0093":{"label":"HUNGARY","version":"1"},"0094":{"label":"ICELAND","version":"1"},"0095":{"label":"INDIA","version":"1"},"0096":{"label":"INDONESIA","version":"1"},"0097":{"label":"IRAN, ISLAMIC REPUBLIC OF","version":"1"},"0098":{"label":"IRAQ","version":"1"},"0099":{"label":"IRELAND","version":"1"},"0100":{"label":"ISLE OF MAN","version":"1"},"0101":{"label":"ISRAEL","version":"1"},"0102":{"label":"ITALY","version":"1"},"0103":{"label":"JAMAICA","version":"1"},"0104":{"label":"JAPAN","version":"1"},"0105":{"label":"JORDAN","version":"1"},"0106":{"label":"KAZAKHSTAN","version":"1"},"0107":{"label":"KENYA","version":"1"},"0108":{"label":"KIRIBATI","version":"1"},"0109":{"label":"KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF","version":"1"},"0110":{"label":"KOREA, REPUBLIC OF","version":"1"},"0111":{"label":"KUWAIT","version":"1"},"0112":{"label":"KYRGYZSTAN","version":"1"},"0113":{"label":"LAO PEOPLE'S DEMOCRATIC REPUBLIC","version":"1"},"0114":{"label":"LATVIA","version":"1"},"0115":{"label":"LEBANON","version":"1"},"0116":{"label":"LESOTHO","version":"1"},"0117":{"label":"LIBERIA","version":"1"},"0118":{"label":"LIBYA FEZZAN","version":"1"},"0119":{"label":"LIBYAN ARAB JAMAHIRIYA","version":"1"},"0120":{"label":"LIECHTENSTEIN","version":"1"},"0121":{"label":"LITHUANIA","version":"1"},"0122":{"label":"LUXEMBOURG","version":"1"},"0123":{"label":"MACAO","version":"1"},"0124":{"label":"MADAGASCAR","version":"1"},"0125":{"label":"MALAWI","version":"1"},"0126":{"label":"MALAYSIA","version":"1"},"0127":{"label":"MALDIVES","version":"1"},"0128":{"label":"MALI","version":"1"},"0129":{"label":"MALTA","version":"1"},"0130":{"label":"MARSHALL ISLANDS","version":"1"},"0131":{"label":"MAURITANIA","version":"1"},"0132":{"label":"MAURITIUS","version":"1"},"0133":{"label":"MEXICO","version":"1"},"0134":{"label":"MICRONESIA, FEDERATED STATES OF","version":"1"},"0135":{"label":"MOLDOVA, REPUBLIC OF","version":"1"},"0136":{"label":"MONACO","version":"1"},"0137":{"label":"MONGOLIA","version":"1"},"0138":{"label":"MONTENEGRO","version":"1"},"0139":{"label":"MONTSERRAT","version":"1"},"0140":{"label":"MOROCCO","version":"1"},"0141":{"label":"MOZAMBIQUE","version":"1"},"0142":{"label":"MYANMAR","version":"1"},"0143":{"label":"NAMIBIA","version":"1"},"0144":{"label":"NAURU","version":"1"},"0145":{"label":"NEPAL","version":"1"},"0146":{"label":"NETHERLANDS","version":"1"},"0147":{"label":"NETHERLANDS ANTILLES","version":"1"},"0148":{"label":"NEW CALEDONIA","version":"1"},"0149":{"label":"NEW ZEALAND","version":"1"},"0150":{"label":"NICARAGUA","version":"1"},"0151":{"label":"NIGER","version":"1"},"0152":{"label":"NIGERIA","version":"1"},"0153":{"label":"NIUE","version":"1"},"0154":{"label":"NORTHERN MARIANA ISLANDS","version":"1"},"0155":{"label":"NORWAY","version":"1"},"0156":{"label":"OMAN","version":"1"},"0157":{"label":"PAKISTAN","version":"1"},"0158":{"label":"PALAU","version":"1"},"0159":{"label":"PANAMA","version":"1"},"0160":{"label":"PAPUA NEW GUINEA","version":"1"},"0161":{"label":"PARAGUAY","version":"1"},"0162":{"label":"PERU","version":"1"},"0163":{"label":"PHILIPPINES","version":"1"},"0164":{"label":"POLAND","version":"1"},"0165":{"label":"PORTUGAL","version":"1"},"0166":{"label":"PUERTO RICO","version":"1"},"0167":{"label":"QATAR","version":"1"},"0168":{"label":"ROMANIA","version":"1"},"0169":{"label":"RUSSIAN FEDERATION","version":"1"},"0170":{"label":"RWANDA","version":"1"},"0171":{"label":"SAINT KITTS AND NEVIS","version":"1"},"0172":{"label":"SAINT LUCIA","version":"1"},"0173":{"label":"SAINT MARTIN","version":"1"},"0174":{"label":"SAINT VINCENT","version":"1"},"0175":{"label":"SAINT VINCENT AND THE GRENADINES","version":"1"},"0176":{"label":"SAMOA","version":"1"},"0177":{"label":"SAN MARINO","version":"1"},"0178":{"label":"SAO TOME AND PRINCIPE","version":"1"},"0179":{"label":"SAUDI ARABIA","version":"1"},"0180":{"label":"SENEGAL","version":"1"},"0181":{"label":"SERBIA","version":"1"},"0182":{"label":"SERBIA AND MONTENEGRO","version":"1"},"0183":{"label":"SEYCHELLES","version":"1"},"0184":{"label":"SIERRA LEONE","version":"1"},"0185":{"label":"SINGAPORE","version":"1"},"0186":{"label":"SLOVAKIA","version":"1"},"0187":{"label":"SLOVENIA","version":"1"},"0188":{"label":"SOLOMON ISLANDS","version":"1"},"0189":{"label":"SOMALIA","version":"1"},"0190":{"label":"SOUTH AFRICA","version":"1"},"0191":{"label":"SPAIN","version":"1"},"0192":{"label":"SRI LANKA","version":"1"},"0193":{"label":"SUDAN","version":"1"},"0194":{"label":"SURINAME","version":"1"},"0195":{"label":"SVALBARD AND JAN MAYEN","version":"1"},"0196":{"label":"SWAZILAND","version":"1"},"0197":{"label":"SWEDEN","version":"1"},"0198":{"label":"SWITZERLAND","version":"1"},"0199":{"label":"SYRIAN ARAB REPUBLIC","version":"1"},"0200":{"label":"TAJIKISTAN","version":"1"},"0201":{"label":"TANZANIA, UNITED REPUBLIC OF","version":"1"},"0202":{"label":"THAILAND","version":"1"},"0203":{"label":"TIMOR-LESTE","version":"1"},"0204":{"label":"TOGO","version":"1"},"0205":{"label":"TOKELAU","version":"1"},"0206":{"label":"TONGA","version":"1"},"0207":{"label":"TRINIDAD AND TOBAGO","version":"1"},"0208":{"label":"TUNISIA","version":"1"},"0209":{"label":"TURKEY","version":"1"},"0210":{"label":"TURKMENISTAN","version":"1"},"0211":{"label":"TURKS AND CAICOS ISLANDS","version":"1"},"0212":{"label":"TUVALU","version":"1"},"0213":{"label":"UGANDA","version":"1"},"0214":{"label":"UKRAINE","version":"1"},"0215":{"label":"UNITED ARAB EMIRATES","version":"1"},"0216":{"label":"UNITED KINGDOM","version":"1"},"0217":{"label":"UNITED STATES","version":"1"},"0218":{"label":"UNITED STATES MINOR OUTLYING ISLANDS","version":"1"},"0219":{"label":"URUGUAY","version":"1"},"0220":{"label":"UZBEKISTAN","version":"1"},"0221":{"label":"VANUATU","version":"1"},"0222":{"label":"VENEZUELA, BOLIVARIAN REPUBLIC OF","version":"1"},"0223":{"label":"VIRGIN ISLANDS, BRITISH","version":"1"},"0224":{"label":"VIRGIN ISLANDS, U.S.","version":"1"},"0225":{"label":"WESTERN SAHARA","version":"1"},"0226":{"label":"YEMEN","version":"1"},"0227":{"label":"ZAMBIA","version":"1"},"0228":{"label":"ZIMBABWE","version":"1"},"0229":{"label":"UNKNOWN","version":"1"},"0230":{"label":"GERMAN DEMOCRATIC REPUBLIC","version":"1"},"0231":{"label":"EAST TIMOR (TIMOR PORTUGUESE)","version":"1"},"0232":{"label":"FRENCH TERRITORY OF THE AFARS AND THE ISSAS","version":"1"},"0233":{"label":"NETHERLANDS ANTILLES (BEFORE ARUBA BROKE AWAY)","version":"1"},"0234":{"label":"SAINT KITTS-NEVIS-ANGUILLA","version":"1"},"0235":{"label":"YEMEN, DEMOCRATIC (SOUTH YEMEN)","version":"1"},"0236":{"label":"YEMEN ARAB REPUBLIC (NORTH YEMEN)","version":"1"},"0237":{"label":"SOCIALIST REPUBLIC OF VIETNAM","version":"1"},"0238":{"label":"PALESTINE","version":"1"},"0239":{"label":"PALESTINIAN NATIONALITY NOT RECOGNIZED BY ALL STATES","version":"1"},"0240":{"label":"SOUTH SUDAN","version":"1"},"0241":{"label":"KOSOVO","version":"1"},"0242":{"label":"NORTH MACEDONIA","version":"1"},"0243":{"label":"KINGDOM OF ESWATINI","version":"1"},"0244":{"label":"BRITISH OVERSEAS TERRITORIES CITIZEN (GIBRALTAR)","version":"1"},"0245":{"label":"STATELESS (1954 CONVENTION)","version":"1"},"0246":{"label":"OTHER","version":"1"}},"CT04_GENDER":{"0001":{"label":"Male","version":"01"},"0002":{"label":"Female","version":"01"},"0003":{"label":"Unspecified/Other","version":"01"},"9999":{"label":"Not Applicable","version":"01"}},"CT11_TRAVEL_DOCUMENT_TYPE":{"0001":{"label":"Ordinary passport","version":"01"},"0002":{"label":"Diplomatic passport","version":"01"},"0003":{"label":"Service passport","version":"01"},"0004":{"label":"Travel document (1951 convention)","version":"01"},"0005":{"label":"Alien’s passport","version":"01"},"0006":{"label":"Seaman’s passport","version":"01"},"0007":{"label":"Other travel document","version":"01"},"0008":{"label":"Official passport","version":"01"},"0009":{"label":"Special passport","version":"01"},"0010":{"label":"Group passport","version":"01"},"0011":{"label":"National laissez-passer","version":"01"},"0012":{"label":"United Nations laissez-passer","version":"01"},"0013":{"label":"Travel document (1954 Convention)","version":"01"}},"CT72_ISO_ICAO_TO_CT02_MAPPING":{"0001":{"label":"AFG","version":"1"},"0002":{"label":"ALA","version":"1"},"0003":{"label":"ALB","version":"1"},"0004":{"label":"DZA","version":"1"},"0005":{"label":"ASM","version":"1"},"0006":{"label":"AND","version":"1"},"0007":{"label":"AGO","version":"1"},"0008":{"label":"AIA","version":"1"},"0009":{"label":"ATA","version":"1"},"0010":{"label":"ATG","version":"1"},"0011":{"label":"ARG","version":"1"},"0012":{"label":"ARM","version":"1"},"0013":{"label":"ABW","version":"1"},"0015":{"label":"AUS","version":"1"},"0016":{"label":"AUT","version":"1"},"0017":{"label":"AZE","version":"1"},"0018":{"label":"BHS","version":"1"},"0019":{"label":"BHR","version":"1"},"0020":{"label":"BGD","version":"1"},"0021":{"label":"BRB","version":"1"},"0022":{"label":"BLR","version":"1"},"0023":{"label":"BEL","version":"1"},"0024":{"label":"BLZ","version":"1"},"0025":{"label":"BEN","version":"1"},"0026":{"label":"BMU","version":"1"},"0027":{"label":"BTN","version":"1"},"0028":{"label":"BOL","version":"1"},"0029":{"label":"BIH","version":"1"},"0030":{"label":"BWA","version":"1"},"0031":{"label":"BVT","version":"1"},"0032":{"label":"BRA","version":"1"},"0033":{"label":"IOT","version":"1"},"0034":{"label":"BRN","version":"1"},"0035":{"label":"BGR","version":"1"},"0036":{"label":"BFA","version":"1"},"0038":{"label":"BDI","version":"1"},"0039":{"label":"KHM","version":"1"},"0040":{"label":"CMR","version":"1"},"0041":{"label":"CAN","version":"1"},"0043":{"label":"CPV","version":"1"},"0044":{"label":"CYM","version":"1"},"0045":{"label":"CAF","version":"1"},"0047":{"label":"TCD","version":"1"},"0048":{"label":"CHL","version":"1"},"0049":{"label":"CHN","version":"1"},"0050":{"label":"CXR","version":"1"},"0052":{"label":"CCK","version":"1"},"0053":{"label":"COL","version":"1"},"0054":{"label":"COM","version":"1"},"0055":{"label":"COG","version":"1"},"0056":{"label":"COD","version":"1"},"0057":{"label":"COK","version":"1"},"0058":{"label":"CRI","version":"1"},"0059":{"label":"CIV","version":"1"},"0060":{"label":"HRV","version":"1"},"0061":{"label":"CUB","version":"1"},"0062":{"label":"CYP","version":"1"},"0063":{"label":"CZE","version":"1"},"0064":{"label":"DNK","version":"1"},"0066":{"label":"DJI","version":"1"},"0067":{"label":"DMA","version":"1"},"0068":{"label":"DOM","version":"1"},"0070":{"label":"ECU","version":"1"},"0071":{"label":"EGY","version":"1"},"0072":{"label":"SLV","version":"1"},"0073":{"label":"GNQ","version":"1"},"0074":{"label":"ERI","version":"1"},"0075":{"label":"EST","version":"1"},"0076":{"label":"ETH","version":"1"},"0077":{"label":"FLK","version":"1"},"0078":{"label":"FRO","version":"1"},"0079":{"label":"FJI","version":"1"},"0080":{"label":"FIN","version":"1"},"0081":{"label":"FRA","version":"1"},"0083":{"label":"GUF","version":"1"},"0084":{"label":"PYF","version":"1"},"0085":{"label":"ATF","version":"1"},"0086":{"label":"GAB","version":"1"},"0087":{"label":"GMB","version":"1"},"0088":{"label":"GEO","version":"1"},"0089":{"label":"D","version":"1"},"0090":{"label":"GHA","version":"1"},"0091":{"label":"GIB","version":"1"},"0092":{"label":"GRC","version":"1"},"0093":{"label":"GRL","version":"1"},"0094":{"label":"GRD","version":"1"},"0095":{"label":"GLP","version":"1"},"0096":{"label":"GUM","version":"1"},"0097":{"label":"GTM","version":"1"},"0098":{"label":"GGY","version":"1"},"0099":{"label":"GIN","version":"1"},"0100":{"label":"GNB","version":"1"},"0101":{"label":"GUY","version":"1"},"0102":{"label":"HTI","version":"1"},"0103":{"label":"HMD","version":"1"},"0104":{"label":"VAT","version":"1"},"0105":{"label":"HND","version":"1"},"0106":{"label":"HKG","version":"1"},"0107":{"label":"HUN","version":"1"},"0108":{"label":"ISL","version":"1"},"0109":{"label":"IND","version":"1"},"0110":{"label":"IDN","version":"1"},"0111":{"label":"IRN","version":"1"},"0112":{"label":"IRQ","version":"1"},"0113":{"label":"IRL","version":"1"},"0114":{"label":"IMN","version":"1"},"0115":{"label":"ISR","version":"1"},"0116":{"label":"ITA","version":"1"},"0117":{"label":"JAM","version":"1"},"0118":{"label":"JPN","version":"1"},"0119":{"label":"JEY","version":"1"},"0120":{"label":"JOR","version":"1"},"0121":{"label":"KAZ","version":"1"},"0122":{"label":"KEN","version":"1"},"0123":{"label":"KIR","version":"1"},"0124":{"label":"PRK","version":"1"},"0125":{"label":"KOR","version":"1"},"0126":{"label":"KWT","version":"1"},"0127":{"label":"KGZ","version":"1"},"0128":{"label":"LAO","version":"1"},"0129":{"label":"LVA","version":"1"},"0130":{"label":"LBN","version":"1"},"0131":{"label":"LSO","version":"1"},"0132":{"label":"LBR","version":"1"},"0133":{"label":"LBY","version":"1"},"0135":{"label":"LIE","version":"1"},"0136":{"label":"LTU","version":"1"},"0137":{"label":"LUX","version":"1"},"0138":{"label":"MAC","version":"1"},"0139":{"label":"MKD","version":"1"},"0140":{"label":"MDG","version":"1"},"0141":{"label":"MWI","version":"1"},"0142":{"label":"MYS","version":"1"},"0143":{"label":"MDV","version":"1"},"0144":{"label":"MLI","version":"1"},"0145":{"label":"MLT","version":"1"},"0146":{"label":"MHL","version":"1"},"0147":{"label":"MTQ","version":"1"},"0148":{"label":"MRT","version":"1"},"0149":{"label":"MUS","version":"1"},"0150":{"label":"MYT","version":"1"},"0151":{"label":"MEX","version":"1"},"0152":{"label":"FSM","version":"1"},"0153":{"label":"MDA","version":"1"},"0154":{"label":"MCO","version":"1"},"0155":{"label":"MNG","version":"1"},"0156":{"label":"MNE","version":"1"},"0157":{"label":"MSR","version":"1"},"0158":{"label":"MAR","version":"1"},"0159":{"label":"MOZ","version":"1"},"0160":{"label":"MMR","version":"1"},"0161":{"label":"NAM","version":"1"},"0162":{"label":"NRU","version":"1"},"0163":{"label":"NPL","version":"1"},"0164":{"label":"NLD","version":"1"},"0165":{"label":"ANT","version":"1"},"0166":{"label":"NTZ","version":"1"},"0167":{"label":"NCL","version":"1"},"0168":{"label":"NZL","version":"1"},"0169":{"label":"NIC","version":"1"},"0170":{"label":"NER","version":"1"},"0171":{"label":"NGA","version":"1"},"0172":{"label":"NIU","version":"1"},"0173":{"label":"NFK","version":"1"},"0174":{"label":"MNP","version":"1"},"0175":{"label":"NOR","version":"1"},"0176":{"label":"OMN","version":"1"},"0177":{"label":"PAK","version":"1"},"0178":{"label":"PLW","version":"1"},"0180":{"label":"PAN","version":"1"},"0181":{"label":"PNG","version":"1"},"0182":{"label":"PRY","version":"1"},"0183":{"label":"PER","version":"1"},"0184":{"label":"PHL","version":"1"},"0185":{"label":"PCN","version":"1"},"0186":{"label":"POL","version":"1"},"0187":{"label":"PRT","version":"1"},"0188":{"label":"PRI","version":"1"},"0189":{"label":"QAT","version":"1"},"0190":{"label":"REU","version":"1"},"0191":{"label":"ROU","version":"1"},"0192":{"label":"RUS","version":"1"},"0193":{"label":"RWA","version":"1"},"0194":{"label":"BLM","version":"1"},"0195":{"label":"SHN","version":"1"},"0196":{"label":"KNA","version":"1"},"0197":{"label":"LCA","version":"1"},"0199":{"label":"SPM","version":"1"},"0201":{"label":"VCT","version":"1"},"0202":{"label":"WSM","version":"1"},"0203":{"label":"SMR","version":"1"},"0204":{"label":"STP","version":"1"},"0205":{"label":"SAU","version":"1"},"0206":{"label":"SEN","version":"1"},"0207":{"label":"SRB","version":"1"},"0209":{"label":"SYC","version":"1"},"0210":{"label":"SLE","version":"1"},"0211":{"label":"SGP","version":"1"},"0212":{"label":"SVK","version":"1"},"0213":{"label":"SVN","version":"1"},"0214":{"label":"SLB","version":"1"},"0215":{"label":"SOM","version":"1"},"0216":{"label":"ZAF","version":"1"},"0217":{"label":"SGS","version":"1"},"0218":{"label":"ESP","version":"1"},"0219":{"label":"LKA","version":"1"},"0220":{"label":"SDN","version":"1"},"0221":{"label":"SUR","version":"1"},"0222":{"label":"SJM","version":"1"},"0223":{"label":"SWZ","version":"1"},"0224":{"label":"SWE","version":"1"},"0225":{"label":"CHE","version":"1"},"0226":{"label":"SYR","version":"1"},"0227":{"label":"TWN","version":"1"},"0228":{"label":"TJK","version":"1"},"0229":{"label":"TZA","version":"1"},"0230":{"label":"THA","version":"1"},"0231":{"label":"TLS","version":"1"},"0232":{"label":"TGO","version":"1"},"0233":{"label":"TKL","version":"1"},"0234":{"label":"TON","version":"1"},"0235":{"label":"TTO","version":"1"},"0237":{"label":"TUN","version":"1"},"0238":{"label":"TUR","version":"1"},"0239":{"label":"TKM","version":"1"},"0240":{"label":"TCA","version":"1"},"0241":{"label":"TUV","version":"1"},"0242":{"label":"UGA","version":"1"},"0243":{"label":"UKR","version":"1"},"0244":{"label":"ARE","version":"1"},"0245":{"label":"GBR","version":"1"},"0246":{"label":"USA","version":"1"},"0247":{"label":"UMI","version":"1"},"0248":{"label":"URY","version":"1"},"0250":{"label":"UZB","version":"1"},"0251":{"label":"VUT","version":"1"},"0252":{"label":"VEN","version":"1"},"0253":{"label":"VNM","version":"1"},"0254":{"label":"VGB","version":"1"},"0255":{"label":"VIR","version":"1"},"0256":{"label":"WLF","version":"1"},"0257":{"label":"ESH","version":"1"},"0258":{"label":"YEM","version":"1"},"0261":{"label":"ZMB","version":"1"},"0262":{"label":"ZWE","version":"1"},"0264":{"label":"XXA","version":"1"},"0282":{"label":"XXX","version":"1"},"0301":{"label":"XXB","version":"1"},"0302":{"label":"XXC","version":"1"},"0303":{"label":"GBR","version":"1"},"0304":{"label":"GBD","version":"1"},"0305":{"label":"GBN","version":"1"},"0306":{"label":"GBO","version":"1"},"0307":{"label":"GBP","version":"1"},"0308":{"label":"GBS","version":"1"},"0309":{"label":"BES","version":"1"},"0310":{"label":"CUW","version":"1"},"0311":{"label":"SXM","version":"1"},"0312":{"label":"MAF","version":"1"},"0319":{"label":"PSE","version":"1"},"0321":{"label":"UNO","version":"1"},"0322":{"label":"UNA","version":"1"},"0323":{"label":"UNK","version":"1"},"0324":{"label":"XOM","version":"1"},"0325":{"label":"SSD","version":"1"},"0326":{"label":"RKS","version":"1"},"0327":{"label":"MKD","version":"1"},"0329":{"label":"XBA","version":"1"},"0330":{"label":"XIM","version":"1"},"0331":{"label":"XCC","version":"1"},"0332":{"label":"XCE","version":"1"},"0333":{"label":"XCO","version":"1"},"0334":{"label":"XEC","version":"1"},"0335":{"label":"XPO","version":"1"},"0336":{"label":"XDC","version":"1"},"0337":{"label":"EUE","version":"1"},"0338":{"label":"XES","version":"1"},"9999":{"label":"CCC","version":"1"}},"CT401_MEMBER_STATE_ACTOR":{"0000":{"label":"Austria","version":"1"},"0001":{"label":"Belgium","version":"1"},"0002":{"label":"Bulgaria","version":"1"},"0003":{"label":"Cyprus","version":"1"},"0004":{"label":"Croatia","version":"1"},"0005":{"label":"Czech Republic","version":"1"},"0006":{"label":"Denmark","version":"1"},"0007":{"label":"Estonia","version":"1"},"0008":{"label":"Finland","version":"1"},"0009":{"label":"France","version":"1"},"0010":{"label":"Germany","version":"1"},"0011":{"label":"Greece","version":"1"},"0012":{"label":"Hungary","version":"1"},"0013":{"label":"Iceland","version":"1"},"0014":{"label":"Ireland","version":"1"},"0015":{"label":"Italy","version":"1"},"0016":{"label":"Latvia","version":"1"},"0017":{"label":"Liechtenstein","version":"1"},"0018":{"label":"Lithuania","version":"1"},"0019":{"label":"Luxembourg","version":"1"},"0020":{"label":"Malta","version":"1"},"0021":{"label":"Netherlands","version":"1"},"0022":{"label":"Norway","version":"1"},"0023":{"label":"Romania","version":"1"},"0024":{"label":"Poland","version":"1"},"0025":{"label":"Portugal","version":"1"},"0026":{"label":"Slovakia","version":"1"},"0027":{"label":"Slovenia","version":"1"},"0028":{"label":"Spain","version":"1"},"0029":{"label":"Sweden","version":"1"},"0030":{"label":"Switzerland","version":"1"}},"CT402_MS_OF_ORIGIN_INSERT":{"0000":{"label":"AT","version":"1"},"0001":{"label":"BE","version":"1"},"0002":{"label":"BG","version":"1"},"0003":{"label":"CY","version":"1"},"0004":{"label":"HR","version":"1"},"0005":{"label":"CZ","version":"1"},"0006":{"label":"DK","version":"1"},"0007":{"label":"EE","version":"1"},"0008":{"label":"FI","version":"1"},"0009":{"label":"FR","version":"1"},"0010":{"label":"DE","version":"1"},"0011":{"label":"GR","version":"1"},"0012":{"label":"HU","version":"1"},"0013":{"label":"IS","version":"1"},"0014":{"label":"IE","version":"1"},"0015":{"label":"IT","version":"1"},"0016":{"label":"LV","version":"1"},"0017":{"label":"LI","version":"1"},"0018":{"label":"LT","version":"1"},"0019":{"label":"LU","version":"1"},"0020":{"label":"MT","version":"1"},"0021":{"label":"NL","version":"1"},"0022":{"label":"NO","version":"1"},"0023":{"label":"RO","version":"1"},"0024":{"label":"PL","version":"1"},"0025":{"label":"PT","version":"1"},"0026":{"label":"SK","version":"1"},"0027":{"label":"SI","version":"1"},"0028":{"label":"ES","version":"1"},"0029":{"label":"SE","version":"1"},"0030":{"label":"CH","version":"1"}},"CT450_TAKE_CHARGE_LEGAL_BASE":{"0001":{"label":"Article 25 of Regulation (EU) 2024/1351: unaccompanied minor","version":"01"},"0002":{"label":"Article 26 of Regulation (EU) 2024/1351: family members who legally reside in a Member State If this field is selected, written consent of the person concerned should be attached to the form.","version":"01"},"0003":{"label":"Article 27 of Regulation (EU) 2024/1351: family members who are applicants for international protection","version":"01"},"0004":{"label":"Article 28 of Regulation (EU) 2024/1351: family procedure","version":"01"},"0005":{"label":"Article 29(1) of Regulation (EU) 2024/1351: valid residence document","version":"01"},"0006":{"label":"Article 29(2) of Regulation (EU) 2024/1351: valid visa","version":"01"},"0007":{"label":"Article 29(4) of Regulation (EU) 2024/1351: expired, annulled, revoked or withdrawn residence document","version":"01"},"0008":{"label":"Article 29(4) of Regulation (EU) 2024/1351: expired, annulled, revoked or withdrawn visa","version":"01"},"0009":{"label":"Article 30 Regulation (EU) 2024/1351: diplomas or other qualifications","version":"01"},"0010":{"label":"Article 31 Regulation (EU) 2024/1351: visa-waived entry","version":"01"},"0011":{"label":"Article 32 Regulation (EU) 2024/1351: application in an international transit area of an airport","version":"01"},"0012":{"label":"Article 33(1) Regulation (EU) 2024/1351: entry","version":"01"},"0013":{"label":"Article 33(2) Regulation (EU) 2024/1351: Disembarkation following a search and rescue operation","version":"01"},"0014":{"label":"Article 34 Regulation (EU) 2024/1351: dependent persons","version":"01"},"0015":{"label":"Article 35(2) Regulation (EU) 2024/1351: discretionary clauses","version":"01"}},"CT451_TAKE_BACK_LEGAL_BASE":{"0001":{"label":"Article 36(1), point (b), of Regulation (EU) 2024/1351","version":"01"},"0002":{"label":"Article 36(1), point (c), of Regulation (EU) 2024/1351","version":"01"},"0003":{"label":"Article 38(4), first subparagraph of Regulation (EU) 2024/1351","version":"01"},"0004":{"label":"Article 38(5) of Regulation (EU) 2024/1351","version":"01"},"0006":{"label":"Article 12(6) of this Regulation","version":"01"},"0005":{"label":"Article 13 of this Regulation","version":"01"}},"CT452_ASYLUM_BORDER_GROUND":{"0001":{"label":"Article 42(1), point (c), of Regulation (EU) 2024/1348","version":"01"},"0002":{"label":"Article 42(1), point (j), of Regulation (EU) 2024/1348","version":"01"}},"CT458_MARITAL_STATUS":{"0001":{"label":"Single","version":"01"},"0002":{"label":"Married","version":"01"},"0003":{"label":"Widowed","version":"01"},"0004":{"label":"Divorced","version":"01"},"0005":{"label":"Separated","version":"01"},"0006":{"label":"Unmarried partner in stable relationship","version":"01"}},"CT459_BECOME_RESPONSIBLE_REASON":{"0001":{"label":"The transfer has not been carried out within the time limit set out in Article 46(1) of Regulation (EU) 2024/1351","version":"1"},"0002":{"label":"The transfer has not been carried out within the time limits set out in Article 46 (2) of Regulation (EU) 2024/1351","version":"1"},"0003":{"label":"The transfer cannot be carried out pursuant to Article 16(3) of Regulation (EU) 2024/1351 and no other Member State can be designated as responsible","version":"1"},"0004":{"label":"The transfer is not in the best interest of the child (Article 25(5) of Regulation (EU) 2024/1351)","version":"1"},"0005":{"label":"The transfer decision was challenged in accordance with Article 43 of Regulation (EU) 2024/1351 and the appeal was successful","version":"1"},"0006":{"label":"Discretionary clause under Article 35 of Regulation (EU) 2024/1351 was applied by the requesting Member State","version":"1"},"0007":{"label":"A residence document was issued to the person by the requesting Member State","version":"1"}},"CT460_FAMILY_RELATION":{"0001":{"label":"Spouse","version":"1"},"0002":{"label":"Unmarried partner in a stable relationship","version":"1"},"0003":{"label":"Minor unmarried child","version":"1"},"0004":{"label":"Father, mother or another adult responsible for the applicant","version":"1"},"0005":{"label":"Father, mother or another adult responsible for that beneficiary","version":"1"}}};
@@ -407,18 +453,23 @@ function childTextByNames(node, names) {
 }
 function guessPdfFileName(node, index) {
   const attrNames = ['filename', 'fileName', 'name', 'documentname', 'attachmentname'];
-  for (const attr of Array.from(node?.attributes || [])) {
-    if (attrNames.includes(stripNamespace(attr.name).toLowerCase())) {
-      const named = sanitizeFileName(normalizeWs(attr.value || ''));
-      if (named) return /\.pdf$/i.test(named) ? named : `${named}.pdf`;
+  const lookupAttrFileName = (target) => {
+    for (const attr of Array.from(target?.attributes || [])) {
+      if (attrNames.includes(stripNamespace(attr.name).toLowerCase())) {
+        const named = sanitizeFileName(normalizeWs(attr.value || ''));
+        if (named) return /\.pdf$/i.test(named) ? named : `${named}.pdf`;
+      }
     }
-  }
+    return '';
+  };
+  const directAttr = lookupAttrFileName(node) || lookupAttrFileName(node?.parentElement);
+  if (directAttr) return directAttr;
   const siblingValue = childTextByNames(node, ['FileName', 'Filename', 'DocumentFileName', 'AttachmentFileName', 'Name']) || childTextByNames(node?.parentElement, ['FileName', 'Filename', 'DocumentFileName', 'AttachmentFileName', 'Name']);
   if (siblingValue) {
     const named = sanitizeFileName(siblingValue);
     if (named) return /\.pdf$/i.test(named) ? named : `${named}.pdf`;
   }
-  const stem = slugifyText(stripNamespace(node?.nodeName || 'attachment')) || 'attachment';
+  const stem = slugifyText(stripNamespace(node?.parentElement?.nodeName || node?.nodeName || 'attachment')) || 'attachment';
   return `${stem}-${index}.pdf`;
 }
 function inspectPdfBase64Candidate(rawValue, node, index) {
@@ -476,32 +527,49 @@ function buildXmlAttachmentOutput() {
   const working = parser.parseFromString(state.xmlText, 'application/xml');
   if (working.getElementsByTagName('parsererror').length) throw new Error('The source XML is not valid and cannot be exported.');
   const attachments = extractPdfAttachmentsFromXml(working);
-  const container = working.createElement('generatedAttachments');
-  container.setAttribute('count', String(attachments.length));
-  attachments.forEach((attachment) => {
-    const attachmentEl = working.createElement('attachment');
-    const fileNameEl = working.createElement('fileName');
-    fileNameEl.textContent = attachment.fileName;
-    const mimeTypeEl = working.createElement('mimeType');
-    mimeTypeEl.textContent = attachment.mimeType;
-    const encodingEl = working.createElement('encoding');
-    encodingEl.textContent = attachment.encoding;
-    const sourcePathEl = working.createElement('sourcePath');
-    sourcePathEl.textContent = attachment.sourcePath;
-    const contentEl = working.createElement('content');
-    contentEl.textContent = attachment.base64;
-    attachmentEl.appendChild(fileNameEl);
-    attachmentEl.appendChild(mimeTypeEl);
-    attachmentEl.appendChild(encodingEl);
-    attachmentEl.appendChild(sourcePathEl);
-    attachmentEl.appendChild(contentEl);
-    container.appendChild(attachmentEl);
+  const sourceRoot = stripNamespace(working.documentElement?.nodeName || 'unknown');
+  const esc = (value) => String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    `<generatedAttachments sourceRoot="${esc(sourceRoot)}" count="${attachments.length}">`
+  ];
+  attachments.forEach((attachment, index) => {
+    lines.push('  <attachment>');
+    lines.push(`    <index>${index + 1}</index>`);
+    lines.push(`    <fileName>${esc(attachment.fileName)}</fileName>`);
+    lines.push(`    <mimeType>${esc(attachment.mimeType)}</mimeType>`);
+    lines.push(`    <encoding>${esc(attachment.encoding)}</encoding>`);
+    lines.push(`    <sourcePath>${esc(attachment.sourcePath)}</sourcePath>`);
+    lines.push(`    <content>${esc(attachment.base64)}</content>`);
+    lines.push('  </attachment>');
   });
-  working.documentElement.appendChild(container);
-  const xmlString = `<?xml version="1.0" encoding="UTF-8"?>\n${new XMLSerializer().serializeToString(working)}`;
+  lines.push('</generatedAttachments>');
+  const xmlString = lines.join('\n');
   const reparsed = parser.parseFromString(xmlString, 'application/xml');
-  if (reparsed.getElementsByTagName('parsererror').length) throw new Error('Generated XML attachment output is not well formed.');
+  if (reparsed.getElementsByTagName('parsererror').length) {
+    const parserError = reparsed.getElementsByTagName('parsererror')[0];
+    throw new Error(`Generated XML attachment output is not well formed. ${normalizeWs(parserError?.textContent || '')}`.trim());
+  }
   return { xmlString, attachments };
+}
+
+
+function sanitizePdfOutputName(baseOutput, attachment, index) {
+  const rawStem = attachment?.fileName ? baseName(attachment.fileName) : `attachment-${index}`;
+  const cleanStem = sanitizeFileName(rawStem) || `attachment-${index}`;
+  return `${baseOutput}-${cleanStem}.pdf`;
+}
+function downloadPdfAttachments(attachments, baseOutput) {
+  (attachments || []).forEach((attachment, index) => {
+    const bytes = base64ToBytes(attachment.base64);
+    const blob = new Blob([bytes], { type: 'application/pdf' });
+    downloadBlobContent(blob, sanitizePdfOutputName(baseOutput, attachment, index + 1));
+  });
 }
 
 function buildRailCards(template) {
@@ -622,6 +690,34 @@ function buildStandaloneHtml(bundle) {
     .template-footer { display:flex; justify-content:space-between; gap:12px; font-size:11px; color:#64748b; margin-top:18px; padding-top:10px; border-top:1px solid #e2e8f0; }
     .raw-preview { margin:0; padding:16px; background:#0f172a; color:#e2e8f0; font-size:12px; line-height:1.7; white-space:pre-wrap; word-break:break-word; }
 
+  
+    .readme-modal[hidden] { display: none !important; }
+    .readme-modal {
+      position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
+      background: rgba(15, 23, 42, 0.56); padding: 24px;
+    }
+    .readme-dialog {
+      width: min(920px, 96vw); max-height: 88vh; overflow: hidden;
+      background: rgba(255,255,255,0.98); border: 1px solid rgba(255,255,255,0.95);
+      border-radius: 22px; box-shadow: 0 30px 80px rgba(15, 23, 42, 0.22); display: flex; flex-direction: column;
+    }
+    .readme-top {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      padding: 18px 20px; border-bottom: 1px solid var(--line); background: linear-gradient(180deg, #ffffff, #f8fbff);
+    }
+    .readme-top h3 { margin: 0; font-size: 18px; letter-spacing: -0.02em; }
+    .readme-body { overflow: auto; padding: 22px 22px 28px; background: #fff; }
+    .readme-content { color: var(--text); line-height: 1.75; }
+    .readme-content h1, .readme-content h2, .readme-content h3 { margin: 0 0 12px; letter-spacing: -0.02em; }
+    .readme-content h1 { font-size: 28px; }
+    .readme-content h2 { font-size: 22px; margin-top: 18px; }
+    .readme-content h3 { font-size: 18px; margin-top: 14px; }
+    .readme-content p { margin: 0 0 12px; color: #334155; }
+    .readme-content ul { margin: 0 0 14px 22px; padding: 0; color: #334155; }
+    .readme-content li { margin: 0 0 6px; }
+    .readme-content code { background: #eff6ff; color: #1d4ed8; border-radius: 8px; padding: 2px 6px; font-size: 0.95em; }
+    .readme-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
   </style></head><body><div class="wrap">${buildTemplatePreviewMarkup(bundle)}</div></body></html>`;
 }
 function downloadBlobContent(blob, fileName) {
@@ -682,6 +778,61 @@ const NOTE_FALLBACKS = {
   'A request for an urgent reply where the application for international protection was registered after a decision to refuse entry or a return decision was issued in accordance with article 39 (2) regulation (eu) 2024/1351': 'Informational note shown in the Annex II form preview; no separate XML value was detected.'
 };
 
+const BUNDLED_README = "# DubliNet XML Converter\n\nA single-file HTML converter for DubliNet XML that supports template-based export to DOCX, HTML, and attachment-aware XML.\n\n## What this tool does\n\nThe converter reads DubliNet XML files, applies embedded DubliNet code-table mappings, renders a DubliNet-style preview, and exports one or more output formats.\n\nSupported output targets:\n- DOCX report output\n- Styled HTML output\n- XML output with generated attachment elements for validated Base64 PDF payloads\n\n## Main features\n\n- Template chooser for DubliNet-style output layouts\n- Official mapping support for nationality, legal base, member state, and related code tables\n- Preview panel that shows detected XML content in template order where possible\n- Base64 PDF validation workflow for XML payloads that contain embedded PDF documents\n- In-app README viewer with fallback to an embedded copy of this README\n\n## How to use the converter\n\n### 1. Open the tool\n\nOpen `index.html` in a modern browser.\n\n### 2. Upload an XML file\n\nUse the XML upload area to select or drag and drop a DubliNet XML file.\n\n### 3. Choose the output template\n\nPick the target DubliNet template from the template selector. The preview and default output file name update when the template changes.\n\n### 4. Choose the output format\n\nChoose one of the following:\n- DOCX\n- HTML\n- DOCX + HTML\n\nIf the `Export XML with validated Base64 PDF attachment elements` checkbox is enabled, the converter also exports an XML file containing generated attachment elements.\n\n### 5. Review the preview\n\nThe preview panel shows:\n- detected XML structure\n- mapped DubliNet fields when available\n- validated PDF attachments found in Base64 form\n\n### 6. Generate the outputs\n\nClick `Generate Output`. The converter downloads the requested files automatically.\n\n## Base64 PDF attachment workflow\n\nIf the uploaded XML contains a Base64-encoded PDF payload, the converter can:\n- decode the Base64 string to binary\n- validate that the decoded binary starts with `%PDF`\n- re-encode the same binary content back to Base64 without altering the PDF bytes\n- generate a well-formed XML export containing attachment elements with:\n  - `fileName`\n  - `mimeType`\n  - `encoding`\n  - `sourcePath`\n  - `content`\n\nThe generated XML attachment export is appended under a `generatedAttachments` element.\n\n## How to read the README inside the converter\n\nThe converter includes a `Read README` button.\n\nWhen used inside the repo or a hosted copy, the converter first tries to read `README.md` directly. If that is not available, it falls back to an embedded copy of the README so the instructions are still available offline.\n\nThe `Load README File` button can also read an uploaded `.md` or `.txt` file and display it inside the converter.\n\n## Files included in the GitHub package\n\n- `index.html` \u2014 main standalone converter\n- `README.md` \u2014 usage instructions\n- `.gitignore`\n\n## Deployment notes\n\nThe ZIP package is prepared for GitHub upload. After extraction, upload the repo contents to GitHub or place them on a static host.\n\nThe HTML file contains the embedded code mappings and README fallback content. DOCX export still requires the public DOCX library to load in the browser.\n\n## Limitations\n\n- The strongest semantic XML mapping is still the dedicated DubliNet take-charge flow\n- Other XML formats fall back to generic field extraction where needed\n- PDF detection only validates Base64 payloads that decode cleanly and begin with a valid PDF header\n";
+
+function markdownToHtml(markdown) {
+  const escape = (value) => String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  const inline = (value) => escape(value).replace(/`([^`]+)`/g, '<code>$1</code>');
+  const lines = String(markdown || '').replace(/\r\n/g, '\n').split('\n');
+  const parts = [];
+  let inList = false;
+  const closeList = () => { if (inList) { parts.push('</ul>'); inList = false; } };
+  for (const rawLine of lines) {
+    const line = rawLine.trimEnd();
+    const trimmed = line.trim();
+    if (!trimmed) { closeList(); continue; }
+    if (/^###\s+/.test(trimmed)) { closeList(); parts.push(`<h3>${inline(trimmed.replace(/^###\s+/, ''))}</h3>`); continue; }
+    if (/^##\s+/.test(trimmed)) { closeList(); parts.push(`<h2>${inline(trimmed.replace(/^##\s+/, ''))}</h2>`); continue; }
+    if (/^#\s+/.test(trimmed)) { closeList(); parts.push(`<h1>${inline(trimmed.replace(/^#\s+/, ''))}</h1>`); continue; }
+    if (/^-\s+/.test(trimmed)) {
+      if (!inList) { parts.push('<ul>'); inList = true; }
+      parts.push(`<li>${inline(trimmed.replace(/^-\s+/, ''))}</li>`);
+      continue;
+    }
+    closeList();
+    parts.push(`<p>${inline(trimmed)}</p>`);
+  }
+  closeList();
+  return parts.join('');
+}
+async function loadBundledReadme() {
+  try {
+    const response = await fetch('README.md', { cache: 'no-store' });
+    if (response.ok) return await response.text();
+  } catch (err) {}
+  return BUNDLED_README;
+}
+function openReadmeModal(title, markdown) {
+  if (!el.readmeModal || !el.readmeContent || !el.readmeTitle) return;
+  el.readmeTitle.textContent = title || 'README';
+  el.readmeContent.innerHTML = markdownToHtml(markdown || BUNDLED_README);
+  el.readmeModal.hidden = false;
+}
+function closeReadmeModal() {
+  if (el.readmeModal) el.readmeModal.hidden = true;
+}
+async function showReadmeGuide() {
+  showStatus('Loading README instructions…', 'info');
+  const content = await loadBundledReadme();
+  openReadmeModal('README instructions', content);
+  showStatus('README loaded.', 'success');
+}
+async function loadUploadedReadme(file) {
+  if (!file) return;
+  const text = await file.text();
+  openReadmeModal(file.name || 'Uploaded README', text || '# Empty README\n\nThe uploaded file was empty.');
+  showStatus('Uploaded README file loaded.', 'success');
+}
 const state = { docxReady: false, selectedFile: null, xmlDoc: null, xmlText: '', stats: null, detectedFormat: '—', pdfAttachments: [] };
 const el = {
   fileInput: document.getElementById('xmlFile'),
@@ -695,6 +846,13 @@ const el = {
   includeTech: document.getElementById('includeTech'),
   includeRawXml: document.getElementById('includeRawXml'),
   includeAttachmentXml: document.getElementById('includeAttachmentXml'),
+  readmeBtn: document.getElementById('readmeBtn'),
+  readmeFile: document.getElementById('readmeFile'),
+  uploadReadmeBtn: document.getElementById('uploadReadmeBtn'),
+  closeReadmeBtn: document.getElementById('closeReadmeBtn'),
+  readmeModal: document.getElementById('readmeModal'),
+  readmeTitle: document.getElementById('readmeTitle'),
+  readmeContent: document.getElementById('readmeContent'),
   previewBtn: document.getElementById('previewBtn'),
   convertBtn: document.getElementById('convertBtn'),
   resetBtn: document.getElementById('resetBtn'),
@@ -988,6 +1146,7 @@ async function generateReport() {
   const xmlRequested = !!el.includeAttachmentXml?.checked;
   let xmlExportCount = 0;
   let xmlAttachmentCount = 0;
+  let extractedPdfCount = 0;
   try {
     showStatus(`Generating ${describeOutputTargets()} output…`, 'info');
     el.convertBtn.disabled = true;
@@ -995,11 +1154,17 @@ async function generateReport() {
       const htmlString = buildStandaloneHtml(bundle);
       downloadBlobContent(new Blob([htmlString], { type: 'text/html;charset=utf-8' }), `${baseOutput}.html`);
     }
+    let xmlOutput = null;
     if (xmlRequested) {
-      const xmlOutput = buildXmlAttachmentOutput();
+      xmlOutput = buildXmlAttachmentOutput();
       xmlAttachmentCount = xmlOutput.attachments.length;
       downloadBlobContent(new Blob([xmlOutput.xmlString], { type: 'application/xml;charset=utf-8' }), `${baseOutput}-attachments.xml`);
       xmlExportCount = 1;
+    }
+    const attachmentsForPdf = xmlOutput?.attachments || state.pdfAttachments || [];
+    if (attachmentsForPdf.length) {
+      downloadPdfAttachments(attachmentsForPdf, baseOutput);
+      extractedPdfCount = attachmentsForPdf.length;
     }
     if (format === 'docx' || format === 'both') {
       if (!state.docxReady || !window.docx) throw new Error('DOCX library is not available. Check internet access or CDN blocking and reload the page.');
@@ -1024,7 +1189,8 @@ async function generateReport() {
           ['Maximum depth', state.stats.maxDepth],
           ['Selected template', bundle.template.label],
           ['Output targets', describeOutputTargets()],
-          ['Validated PDF attachments', String(state.pdfAttachments.length)]
+          ['Validated PDF attachments', String(state.pdfAttachments.length)],
+          ['Extracted PDF files', String(extractedPdfCount)]
         ]));
       }
       if (el.includeRawXml.checked && state.xmlText) {
@@ -1036,7 +1202,8 @@ async function generateReport() {
       downloadBlobContent(blob, `${baseOutput}.docx`);
     }
     const xmlSummary = xmlExportCount ? ` XML export created with ${xmlAttachmentCount} validated PDF attachment(s).` : '';
-    showStatus(`${describeOutputTargets()} output generated successfully. Download should start automatically.${xmlSummary}`, 'success');
+    const pdfSummary = extractedPdfCount ? ` Extracted ${extractedPdfCount} PDF file(s) as separate downloads.` : '';
+    showStatus(`${describeOutputTargets()} output generated successfully. Download should start automatically.${xmlSummary}${pdfSummary}`, 'success');
   } catch (err) {
     console.error(err);
     showStatus(`Failed to generate output: ${err.message || err}`, 'error');
@@ -1060,6 +1227,11 @@ window.addEventListener('DOMContentLoaded', async () => {
   el.templateChoice.addEventListener('change', () => { applyTemplateDefaults(true); renderCurrentPreview(); updateButtons(); });
   el.outputFormat.addEventListener('change', () => { el.outputName.dataset.userEdited = '0'; applyTemplateDefaults(false); renderCurrentPreview(); updateButtons(); });
   if (el.includeAttachmentXml) el.includeAttachmentXml.addEventListener('change', () => { renderCurrentPreview(); updateButtons(); });
+  if (el.readmeBtn) el.readmeBtn.addEventListener('click', showReadmeGuide);
+  if (el.uploadReadmeBtn) el.uploadReadmeBtn.addEventListener('click', () => el.readmeFile?.click());
+  if (el.readmeFile) el.readmeFile.addEventListener('change', e => loadUploadedReadme(e.target.files?.[0]));
+  if (el.closeReadmeBtn) el.closeReadmeBtn.addEventListener('click', closeReadmeModal);
+  if (el.readmeModal) el.readmeModal.addEventListener('click', e => { if (e.target === el.readmeModal) closeReadmeModal(); });
   updateButtons();
   try { await ensureDocxLoaded(); updateButtons(); if (!state.xmlDoc) { applyTemplateDefaults(false); el.preview.textContent = 'Upload a valid XML file to preview its structure.'; } showStatus('DOCX library loaded. Ready for XML upload.', 'success'); }
   catch (err) { updateButtons(); el.preview.textContent = 'DOCX library could not be loaded. The preview still works, but DOCX export is disabled until the library becomes available.'; showStatus(`${err.message} Try reloading the page or allowing the CDN domains.`, 'warning'); }
