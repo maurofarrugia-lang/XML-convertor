@@ -100,3 +100,5 @@ The HTML file contains the embedded code mappings and README fallback content. D
 When validated Base64 PDF attachments are detected, the converter also extracts each embedded PDF as a separate `.pdf` download during output generation.
 
 - validates Base64-encoded PDF attachments, exports a well-formed XML attachment manifest, and extracts each embedded PDF as a separate downloaded .pdf file.
+
+- Attachment preview now prefers validated embedded PDF payloads over short numeric codes such as `1234`.

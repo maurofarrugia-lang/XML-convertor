@@ -410,8 +410,19 @@ function escapeHtml(value) {
   return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-function normalizeBase64Text(value) { return String(value ?? '').replace(/\s+/g, '').trim(); }
+function normalizeBase64Text(value) {
+  const raw = String(value ?? '').trim();
+  const withoutPrefix = raw.replace(/^data:application\/pdf;base64,/i, '');
+  return withoutPrefix.replace(/\s+/g, '').trim();
+}
 function isLikelyBase64(value) { return !!value && value.length >= 16 && value.length % 4 === 0 && /^[A-Za-z0-9+/=]+$/.test(value); }
+function extractBase64Segments(value) {
+  const normalized = normalizeBase64Text(value);
+  if (!normalized) return [];
+  if (isLikelyBase64(normalized)) return [normalized];
+  const matches = normalized.match(/[A-Za-z0-9+/=]{16,}/g) || [];
+  return matches.filter((segment) => segment.length % 4 === 0);
+}
 function base64ToBytes(base64) {
   const binary = atob(base64);
   const bytes = new Uint8Array(binary.length);
@@ -473,51 +484,68 @@ function guessPdfFileName(node, index) {
   return `${stem}-${index}.pdf`;
 }
 function inspectPdfBase64Candidate(rawValue, node, index) {
-  const normalized = normalizeBase64Text(rawValue);
-  if (!isLikelyBase64(normalized)) return null;
-  try {
-    const bytes = base64ToBytes(normalized);
-    if (!hasPdfHeader(bytes)) return null;
-    const base64 = bytesToBase64(bytes);
-    return {
-      fileName: guessPdfFileName(node, index),
-      mimeType: 'application/pdf',
-      encoding: 'base64',
-      base64,
-      size: bytes.length,
-      sourcePath: nodePath(node)
-    };
-  } catch (err) {
-    return null;
+  const segments = extractBase64Segments(rawValue);
+  for (const segment of segments) {
+    try {
+      const bytes = base64ToBytes(segment);
+      if (!hasPdfHeader(bytes)) continue;
+      const base64 = bytesToBase64(bytes);
+      return {
+        fileName: guessPdfFileName(node, index),
+        mimeType: 'application/pdf',
+        encoding: 'base64',
+        base64,
+        size: bytes.length,
+        sourcePath: nodePath(node)
+      };
+    } catch (err) {}
   }
+  return null;
 }
-function extractPdfAttachmentsFromXml(xmlDoc) {
-  if (!xmlDoc?.documentElement) return [];
+function collectPdfAttachmentsFromNode(rootNode, startIndex = 1) {
+  if (!rootNode) return [];
   const results = [];
   const seen = new Set();
-  for (const node of Array.from(xmlDoc.getElementsByTagName('*'))) {
+  const visit = (node) => {
+    if (!node || node.nodeType !== 1) return;
     const directText = getDirectText(node);
     if (directText) {
-      const candidate = inspectPdfBase64Candidate(directText, node, results.length + 1);
+      const candidate = inspectPdfBase64Candidate(directText, node, startIndex + results.length);
       if (candidate) {
         const key = `${candidate.sourcePath}::text`;
         if (!seen.has(key)) { results.push(candidate); seen.add(key); }
       }
     }
+    const allText = normalizeWs(node.textContent || '');
+    if (allText && allText !== directText) {
+      const candidate = inspectPdfBase64Candidate(allText, node, startIndex + results.length);
+      if (candidate) {
+        const key = `${candidate.sourcePath}::alltext`;
+        if (!seen.has(key)) { results.push(candidate); seen.add(key); }
+      }
+    }
     for (const attr of Array.from(node.attributes || [])) {
-      const candidate = inspectPdfBase64Candidate(attr.value, node, results.length + 1);
+      const candidate = inspectPdfBase64Candidate(attr.value, node, startIndex + results.length);
       if (candidate) {
         candidate.sourcePath = `${candidate.sourcePath}/@${stripNamespace(attr.name)}`;
         const key = `${candidate.sourcePath}::attr`;
         if (!seen.has(key)) { results.push(candidate); seen.add(key); }
       }
     }
-  }
+    for (const child of Array.from(node.children || [])) visit(child);
+  };
+  visit(rootNode);
   return results;
+}
+function extractPdfAttachmentsFromXml(xmlDoc) {
+  if (!xmlDoc?.documentElement) return [];
+  return collectPdfAttachmentsFromNode(xmlDoc.documentElement, 1);
 }
 function previewValue(value, node, index) {
   const pdf = inspectPdfBase64Candidate(value, node, index);
   if (pdf) return `[Validated Base64 PDF · ${pdf.fileName} · ${formatBytes(pdf.size)} · ${pdf.sourcePath}]`;
+  const scopePdf = collectPdfAttachmentsFromNode(node, index)[0];
+  if (scopePdf) return `[Validated Base64 PDF · ${scopePdf.fileName} · ${formatBytes(scopePdf.size)} · ${scopePdf.sourcePath}]`;
   const cleaned = cleanValue(value);
   return cleaned.length > 220 ? `${cleaned.slice(0, 217)}…` : cleaned;
 }
@@ -984,11 +1012,16 @@ function boolFromNode(node) {
 }
 function attachmentFromNode(node) {
   if (!node) return 'No file attached';
-  const direct = cleanValue(getDirectText(node));
-  if (direct !== 'Not provided' && direct !== 'No') return direct;
+  const detected = collectPdfAttachmentsFromNode(node, 1);
+  if (detected.length) {
+    const first = detected[0];
+    return `Validated PDF attachment: ${first.fileName} · ${formatBytes(first.size)}`;
+  }
   const fileNameNode = findNodeInScope(node, ['FileName', 'Filename', 'Name']);
   const fileText = cleanValue(getDirectText(fileNameNode));
   if (fileText !== 'Not provided') return fileText;
+  const direct = cleanValue(getDirectText(node));
+  if (direct !== 'Not provided' && direct !== 'No' && !/^\d{1,8}$/.test(direct)) return direct;
   return (Array.from(node.children || []).length > 0 || (node.attributes && node.attributes.length > 0)) ? 'Attached' : 'No file attached';
 }
 function extractCodeParts(node) {
