@@ -102,3 +102,5 @@ When validated Base64 PDF attachments are detected, the converter also extracts 
 - validates Base64-encoded PDF attachments, exports a well-formed XML attachment manifest, and extracts each embedded PDF as a separate downloaded .pdf file.
 
 - Attachment preview now prefers validated embedded PDF payloads over short numeric codes such as `1234`.
+
+- In the request-based-on section, the file attachment code field is intentionally hidden from rendered output across all templates.
