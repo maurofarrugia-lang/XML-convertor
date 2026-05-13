@@ -106,3 +106,5 @@ When validated Base64 PDF attachments are detected, the converter also extracts 
 - In the request-based-on section, the file attachment code field is intentionally hidden from rendered output across all templates.
 
 - Attachment Base64 payloads, attachment codes, attachment filename attributes, and payload/content nodes are hidden from human-readable preview and report output.
+
+- The human-readable preview and output no longer include a generic `Detected XML fields` section.

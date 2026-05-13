@@ -678,7 +678,6 @@ function buildSectionHtml(title, rows) {
 function gatherTemplateData() {
   const template = getSelectedTemplate();
   const title = el.reportTitle.value.trim() || template.documentTitle;
-  const rawRows = state.xmlDoc ? uniqueRows(flattenXml(state.xmlDoc.documentElement)) : [];
   const attachmentRows = state.pdfAttachments?.length
     ? state.pdfAttachments.map((item, index) => [`Validated PDF ${index}`, `${item.fileName} · ${item.mimeType} · ${item.encoding} · ${formatBytes(item.size)}`])
     : [['Validated PDF attachments', 'No Base64 PDF attachment detected in the XML.']];
@@ -689,20 +688,19 @@ function gatherTemplateData() {
       { title: template.sectionTitle || 'Request details', rows: annex.requestBasedOn },
       { title: 'Transmission and signature summary', rows: annex.transmissionSummary },
       { title: 'Validated PDF attachments', rows: attachmentRows },
-      { title: 'Detected XML fields', rows: rawRows.length ? rawRows : [['No additional fields detected', 'Not provided']] },
     ];
-    return { template, title, sections, note: 'Mandatory DubliNet fields are interpreted with the embedded official code tables. Base64 PDF payloads are decoded, checked for a valid %PDF header, re-encoded without changing their binary content, and prepared for XML attachment export.' };
+    return { template, title, sections, note: 'Mandatory DubliNet fields are interpreted with the embedded official code tables. The generic detected-XML-fields dump has been removed from the human-readable preview and output.' };
   }
   return {
     template,
     title,
     sections: [
-      { title: 'Validated PDF attachments', rows: attachmentRows },
-      { title: template.sectionTitle || 'Detected XML fields', rows: rawRows.length ? rawRows : [['No mapped fields detected', 'The uploaded XML did not expose leaf values.']] }
+      { title: 'Validated PDF attachments', rows: attachmentRows }
     ],
-    note: 'The uploaded XML did not match the dedicated TakeChargeRequestForm parser, so the converter rendered a generic DubliNet-style form using the detected XML leaf fields. Any Base64 PDF payloads are still validated and prepared for XML attachment export.'
+    note: 'The generic detected-XML-fields section has been removed from the human-readable preview and output. Only validated attachment summaries are shown unless a dedicated template mapping is available.'
   };
 }
+
 function buildTemplatePreviewMarkup(bundle) {
   return `<div class="template-preview"><div class="template-shell"><div class="template-topbar"><div class="template-brand">DubliNet · eu-LISA</div><div>Versioned template preview</div><div class="template-tools"><div class="template-tool">+</div><div class="template-tool">↓</div><div class="template-tool">⚙</div></div></div><div class="template-breadcrumb">${escapeHtml(bundle.template.breadcrumb || 'Home > Available forms')}</div><h2 class="template-title">${escapeHtml(bundle.title)}</h2><div class="template-annex">${escapeHtml(bundle.template.annex || 'DUBLINET')}</div><div class="template-rule"></div><div class="template-body"><aside class="template-rail">${buildRailCards(bundle.template)}</aside><main class="template-main"><div class="template-note">Fields marked with an asterisk in the official forms remain in the same logical order whenever the XML exposes them.</div><div class="template-callout"><div class="callout-icon">?</div><div class="callout-text"><strong>Layout note</strong><span>${escapeHtml(bundle.note)}</span></div></div>${bundle.sections.map(section => buildSectionHtml(section.title, section.rows)).join('')}</main></div><div class="template-footer"><span>${escapeHtml(bundle.template.breadcrumb || 'DubliNet')}</span><span>Preview generated from XML</span></div></div></div>`;
 }
