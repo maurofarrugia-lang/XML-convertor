@@ -608,18 +608,64 @@ function buildRailCards(template) {
     <div class="rail-title" style="margin-top:14px;">Next part</div>
     <div class="rail-card"><div class="rail-icon next">•</div><div class="rail-text"><strong>${escapeHtml(describeOutputTargets())} export</strong><span>${escapeHtml(el.outputName.value || buildOutputFileName(state.selectedFile?.name || 'dublinet-output.xml'))}</span></div></div>`;
 }
+function isSensitiveAttachmentPath(path) {
+  const key = String(path || '').toLowerCase();
+  return key.includes('templateunderarticle22_1_attachment_0003')
+    || key.includes('/attachment')
+    || key.includes('/payload')
+    || key.includes('/content')
+    || key.includes('@filename')
+    || key.includes('/filename')
+    || key.includes('/documentfilename')
+    || key.includes('/attachmentfilename');
+}
+function isSensitiveAttachmentValue(label, value) {
+  const key = String(label || '').toLowerCase();
+  const cleaned = cleanValue(value);
+  if (isSensitiveAttachmentPath(key)) return true;
+  if (/^\d{1,8}$/.test(cleaned) && key.includes('attachment')) return true;
+  if (inspectPdfBase64Candidate(value, null, 1)) return true;
+  return false;
+}
+function sanitizeOutputRows(rows) {
+  return (rows || []).filter(([label, value]) => !isSensitiveAttachmentValue(label, value));
+}
+function sanitizeSensitiveXmlForDisplay(xmlText) {
+  return String(xmlText || '')
+    .split(/\r?\n/)
+    .filter((line) => {
+      const lower = String(line || '').toLowerCase();
+      if (lower.includes('templateunderarticle22_1_attachment_0003')) return false;
+      if (lower.includes('<payload') || lower.includes('</payload') || lower.includes('<content') || lower.includes('</content')) return false;
+      if (lower.includes('filename=') && lower.includes('attachment')) return false;
+      const stripped = normalizeBase64Text(String(line || '').replace(/<[^>]+>/g, ''));
+      if (isLikelyBase64(stripped) && inspectPdfBase64Candidate(stripped, null, 1)) return false;
+      if (/^\s*\d{1,8}\s*$/.test(String(line || '').replace(/<[^>]+>/g, '').trim()) && lower.includes('attachment')) return false;
+      return true;
+    })
+    .join('\n');
+}
+
 function flattenXml(node, path = '', rows = []) {
   if (!node) return rows;
   const current = path ? `${path}/${stripNamespace(node.nodeName)}` : stripNamespace(node.nodeName);
+  if (isSensitiveAttachmentPath(current)) return rows;
   const directText = getDirectText(node);
-  if (directText) rows.push([current, previewValue(directText, node, rows.length + 1)]);
-  for (const attr of Array.from(node.attributes || [])) rows.push([`${current}/@${stripNamespace(attr.name)}`, previewValue(attr.value, node, rows.length + 1)]);
+  if (directText) {
+    const preview = previewValue(directText, node, rows.length + 1);
+    if (!isSensitiveAttachmentValue(current, preview) && !isSensitiveAttachmentValue(current, directText)) rows.push([current, preview]);
+  }
+  for (const attr of Array.from(node.attributes || [])) {
+    const label = `${current}/@${stripNamespace(attr.name)}`;
+    const preview = previewValue(attr.value, node, rows.length + 1);
+    if (!isSensitiveAttachmentValue(label, preview) && !isSensitiveAttachmentValue(label, attr.value)) rows.push([label, preview]);
+  }
   Array.from(node.children || []).forEach(child => flattenXml(child, current, rows));
   return rows;
 }
 function uniqueRows(rows) {
   const seen = new Set();
-  return rows.filter(([label, value]) => {
+  return sanitizeOutputRows(rows).filter(([label, value]) => {
     const key = `${label}:::${value}`;
     if (seen.has(key)) return false;
     seen.add(key);
@@ -627,14 +673,14 @@ function uniqueRows(rows) {
   });
 }
 function buildSectionHtml(title, rows) {
-  return `<section class="template-section"><h3>${escapeHtml(title)}</h3><div class="template-grid">${rows.map(([label, value]) => `<div class="field-card"><div class="field-label">${escapeHtml(label)}</div><div class="field-value ${String(value).trim() === 'Not provided' ? 'muted' : ''}">${escapeHtml(value)}</div></div>`).join('')}</div></section>`;
+  return `<section class="template-section"><h3>${escapeHtml(title)}</h3><div class="template-grid">${sanitizeOutputRows(rows).map(([label, value]) => `<div class="field-card"><div class="field-label">${escapeHtml(label)}</div><div class="field-value ${String(value).trim() === 'Not provided' ? 'muted' : ''}">${escapeHtml(value)}</div></div>`).join('')}</div></section>`;
 }
 function gatherTemplateData() {
   const template = getSelectedTemplate();
   const title = el.reportTitle.value.trim() || template.documentTitle;
   const rawRows = state.xmlDoc ? uniqueRows(flattenXml(state.xmlDoc.documentElement)) : [];
   const attachmentRows = state.pdfAttachments?.length
-    ? state.pdfAttachments.map((item, index) => [`Validated PDF ${index}`, `${item.fileName} · ${item.mimeType} · ${item.encoding} · ${formatBytes(item.size)} · ${item.sourcePath}`])
+    ? state.pdfAttachments.map((item, index) => [`Validated PDF ${index}`, `${item.fileName} · ${item.mimeType} · ${item.encoding} · ${formatBytes(item.size)}`])
     : [['Validated PDF attachments', 'No Base64 PDF attachment detected in the XML.']];
   if (state.detectedFormat === 'DubliNet TakeChargeRequestForm') {
     const annex = extractDublinetAnnexII(state.xmlDoc);
@@ -1112,12 +1158,17 @@ function extractDublinetAnnexII(xmlDoc) {
   return { personalBusinessData, requestBasedOn, transmissionSummary };
 }
 function buildGenericPreview(node, level = 0) {
+  const current = stripNamespace(node?.nodeName || '');
+  if (isSensitiveAttachmentPath(current)) return '';
   const indent = '  '.repeat(level);
   const directText = getDirectText(node);
   let line = `${indent}<${node.nodeName}>`;
-  if (directText) line += ` ${cleanValue(directText)}`;
+  if (directText && !isSensitiveAttachmentValue(current, directText)) line += ` ${cleanValue(directText)}`;
   const lines = [line];
-  Array.from(node.children).forEach(child => lines.push(buildGenericPreview(child, level + 1)));
+  Array.from(node.children).forEach(child => {
+    const rendered = buildGenericPreview(child, level + 1);
+    if (rendered) lines.push(rendered);
+  });
   return lines.join('\n');
 }
 
@@ -1240,7 +1291,7 @@ async function generateReport() {
       }
       if (el.includeRawXml.checked && state.xmlText) {
         children.push(new Paragraph({ text: 'Raw XML appendix', heading: HeadingLevel.HEADING_1, spacing: { before: 160, after: 60 } }));
-        state.xmlText.split(/\r?\n/).forEach(line => children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 18, font: 'Courier New' })] })));
+        sanitizeSensitiveXmlForDisplay(state.xmlText).split(/\r?\n/).forEach(line => children.push(new Paragraph({ children: [new TextRun({ text: line || ' ', size: 18, font: 'Courier New' })] })));
       }
       const doc = new Document({ sections: [{ properties: {}, children }] });
       const blob = await Packer.toBlob(doc);

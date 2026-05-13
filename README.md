@@ -104,3 +104,5 @@ When validated Base64 PDF attachments are detected, the converter also extracts 
 - Attachment preview now prefers validated embedded PDF payloads over short numeric codes such as `1234`.
 
 - In the request-based-on section, the file attachment code field is intentionally hidden from rendered output across all templates.
+
+- Attachment Base64 payloads, attachment codes, attachment filename attributes, and payload/content nodes are hidden from human-readable preview and report output.
